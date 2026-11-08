@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PMD Sirampog - Sistem LPPD & LKPPD Desa Berbasis Gemini AI</title>
+	<link rel="shortcut icon" type="image/png" href="favicon.png">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 CSS & JS -->
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Glassmorphism effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+
+        /* Print Media Styles - Precise targeting for A4 printing */
+        @media print {
+            /* Sembunyikan seluruh UI luar secara total */
+            body * {
+                visibility: hidden !important;
+            }
+
+            /* Tampilkan HANYA area dokumen resmi */
+            #printableArea, #printableArea * {
+                visibility: visible !important;
+            }
+
+            /* Posisi area cetak persis di pojok kiri atas halaman */
+            #printableArea {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                border: none !important;
+                background: #ffffff !important;
+                color: #000000 !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+
+            /* Mencegah pemotongan tabel di tengah baris */
+            tr {
+                page-break-inside: avoid !important;
+            }
+
+            h4, .page-section-header {
+                page-break-after: avoid !important;
+            }
+
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+        }
+
+        /* Loading Shimmer effect */
+        .shimmer {
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-indigo-500 selection:text-white">
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div id="loginScreen" class="fixed inset-0 z-[100] bg-slate-900 flex items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 p-8 max-w-sm w-full shadow-2xl">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-emerald-400 flex items-center justify-center text-white mx-auto mb-3 shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid fa-shield-halved text-2xl"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white">Login Sistem LPPD</h2>
+            <p class="text-xs text-slate-400 mt-1">Silakan masuk sesuai role Anda</p>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="flex flex-col gap-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Username</label>
+                <input type="text" id="loginUsername" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+                <input type="password" id="loginPassword" required class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-indigo-500 outline-none">
+            </div>
+            <button type="submit" id="btnLogin" class="mt-2 w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold transition flex justify-center items-center gap-2">
+                <i class="fa-solid fa-sign-in-alt"></i> Masuk
+            </button>
+        </form>
+    </div>
+</div>
+
+    <!-- Top Floating Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none no-print"></div>
+
+    <!-- Header Navigation Bar -->
+    <header class="glass-nav sticky top-0 z-40 border-b border-slate-800/60 text-white px-4 lg:px-8 py-3.5 no-print">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-building-columns text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base tracking-wide flex items-center gap-2">
+                        LPPD & LKPPD <span class="text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full">
+						</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400">Permendagri No. 46 Tahun 2016</p>
+                </div>
+				<div id="userInfoBadge" class="border-l border-slate-700 pl-3 ml-1 hidden md:flex items-center"></div>
+            </div>
+			
+            <!-- Header Action Controls (Always visible in UI) -->
+            <div class="flex items-center gap-3 flex-wrap justify-center">
+                <div class="bg-slate-800 p-1 rounded-xl border border-slate-700 flex items-center gap-1">
+                    <button id="btnModeLPPD" onclick="switchReportMode('LPPD')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white shadow-md">
+                        <i class="fa-solid fa-file-contract"></i> LPPD (Ke Bupati/Camat)
+                    </button>
+                    <button id="btnModeLKPPD" onclick="switchReportMode('LKPPD')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all duration-200 flex items-center gap-2">
+                        <i class="fa-solid fa-users-rectangle"></i> LKPPD (Ke BPD)
+                    </button>
+                </div>
+				
+				<button onclick="openSheetsPanel()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-600/30 active:scale-95">
+					<i class="fa-brands fa-google-drive"></i> Google Sheets
+				</button>
+
+                <button onclick="loadDemoData()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-slate-300 hover:text-white transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i> Isi Data Contoh
+                </button>
+
+                <button onclick="triggerPrint()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 active:scale-95">
+                    <i class="fa-solid fa-print"></i> Cetak / PDF
+                </button>
+            </div>
+			
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+
+        <!-- Mode Banner Info -->
+        <div id="modeBanner" class="no-print rounded-2xl bg-gradient-to-r from-indigo-900/50 via-slate-800 to-slate-900 border border-indigo-500/20 p-4 sm:p-6 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div class="flex items-start gap-4">
+                <div class="p-3 bg-indigo-500/10 rounded-xl border border-indigo-500/20 text-indigo-400">
+                    <i id="modeIcon" class="fa-solid fa-file-contract text-2xl"></i>
+                </div>
+                <div>
+                    <h2 id="modeTitle" class="text-lg font-bold text-slate-100">Laporan Penyelenggaraan Pemerintahan Desa (LPPD)</h2>
+                    <p id="modeDesc" class="text-xs text-slate-300 mt-1 max-w-3xl leading-relaxed">
+                        Laporan tertulis Kepala Desa kepada Bupati/Wali Kota melalui Camat yang memuat seluruh capaian pelaksanaan kegiatan penyelenggaraan pemerintahan desa selama 1 (satu) Tahun Anggaran.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 self-end md:self-auto">
+                <span class="text-xs text-slate-400 font-medium">Status Dokumen:</span>
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Siap Dinyatakan
+                </span>
+            </div>
+        </div>
+
+        <!-- Real-time Stats Cards -->
+        <div class="dashboard-stats no-print grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="glass-card rounded-2xl p-4 border border-slate-700/40 bg-slate-800/40 text-white shadow-lg">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                    <span>TOTAL ANGGARAN APBDES</span>
+                    <i class="fa-solid fa-wallet text-indigo-400"></i>
+                </div>
+                <div id="statTotalAnggaran" class="text-xl font-extrabold text-white mt-2">Rp 0</div>
+                <div class="text-[11px] text-slate-400 mt-1">Ditetapkan dalam Perdes APBDes</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 border border-slate-700/40 bg-slate-800/40 text-white shadow-lg">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                    <span>TOTAL REALISASI</span>
+                    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                </div>
+                <div id="statTotalRealisasi" class="text-xl font-extrabold text-emerald-400 mt-2">Rp 0</div>
+                <div class="text-[11px] text-slate-400 mt-1">Total pengeluaran riil kegiatan</div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 border border-slate-700/40 bg-slate-800/40 text-white shadow-lg">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                    <span>PERSENTASE SERAPAN</span>
+                    <i class="fa-solid fa-chart-line text-amber-400"></i>
+                </div>
+                <div id="statPersentase" class="text-xl font-extrabold text-amber-300 mt-2">0%</div>
+                <div class="w-full bg-slate-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                    <div id="statProgressBar" class="bg-gradient-to-r from-amber-400 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 border border-slate-700/40 bg-slate-800/40 text-white shadow-lg">
+                <div class="flex items-center justify-between text-slate-400 text-xs font-semibold">
+                    <span>JUMLAH KEGIATAN</span>
+                    <i class="fa-solid fa-list-check text-sky-400"></i>
+                </div>
+                <div id="statTotalKegiatan" class="text-xl font-extrabold text-white mt-2">0 Kegiatan</div>
+                <div class="text-[11px] text-slate-400 mt-1">Tersebar di 5 Bidang Utama</div>
+            </div>
+        </div>
+
+        <!-- Main Workspace (Editor vs Live Preview) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- Left Panel: Form Input & Field Data (7 Columns) -->
+            <div class="form-editor-panel no-print lg:col-span-7 flex flex-col gap-6">
+
+                <!-- Section 1: Informasi Umum Desa -->
+                <div class="bg-slate-800/90 rounded-2xl border border-slate-700/80 p-5 shadow-xl text-white">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
+                        <h3 class="font-bold text-sm text-indigo-300 flex items-center gap-2">
+                            <i class="fa-solid fa-building-columns"></i> 1. Informasi Umum Pemerintahan Desa
+                        </h3>
+                        <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded">Identitas Resmi</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div>
+                            <label class="block text-slate-300 font-medium mb-1">Nama Desa</label>
+                            <input type="text" id="infoDesa" placeholder="Contoh: Kaligiri" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-medium mb-1">Kecamatan</label>
+                            <input type="text" id="infoKecamatan" placeholder="Contoh: Sirampog" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-medium mb-1">Kabupaten / Kota</label>
+                            <input type="text" id="infoKabupaten" placeholder="Contoh: Brebes" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-medium mb-1">Tahun Anggaran</label>
+                            <input type="number" id="infoTahun" value="2025" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-medium mb-1">Nama Kepala Desa</label>
+                            <input type="text" id="infoKades" placeholder="Nama & Gelar Kades" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-medium mb-1">Nama Sekretaris Desa</label>
+                            <input type="text" id="infoSekdes" placeholder="Nama Sekdes" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section BAB I PENDAHULUAN Editor -->
+                <div class="bg-slate-800/90 rounded-2xl border border-slate-700/80 p-5 shadow-xl text-white">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm text-sky-400 flex items-center gap-2">
+                                <i class="fa-solid fa-book-open"></i> 2. Form Sistematika BAB I PENDAHULUAN
+                            </h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Sistematika Sub-Bab 1.1 s/d 1.5 Sesuai Pedoman</p>
+                        </div>
+                        <button onclick="generateBab1AI()" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold shadow-md shadow-sky-600/30 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-sparkles text-amber-300"></i> AI Susun BAB I
+                        </button>
+                    </div>
+
+                    <div class="flex flex-col gap-4 text-xs">
+                        <!-- 1.1 Latar Belakang -->
+						<div>
+							<div class="flex items-center justify-between mb-1">
+								<label class="block text-slate-300 font-semibold">1.1 Latar Belakang</label>
+								<button onclick="generateSpecificBab1AI('latar')" class="px-2 py-0.5 rounded bg-sky-600/30 hover:bg-sky-600 border border-sky-500/40 text-[10px] text-sky-200 hover:text-white transition flex items-center gap-1">
+									<i class="fa-solid fa-sparkles text-[9px] text-amber-300"></i> AI Susun
+								</button>
+							</div>
+							<textarea id="bab1LatarBelakang" rows="3" oninput="updateBab1Preview()" placeholder="Latar belakang penyusunan laporan..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-indigo-500 outline-none leading-relaxed"></textarea>
+						</div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1">
+                                <label class="block text-slate-300 font-semibold">1.2 Dasar Hukum</label>
+                                <button onclick="resetDefaultDasarHukum()" class="text-[10px] text-sky-400 hover:underline">Reset Regulasi Standar</button>
+                            </div>
+                            <textarea id="bab1DasarHukum" rows="4" oninput="updateBab1Preview()" placeholder="Dasar hukum peraturan perundang-undangan..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-indigo-500 outline-none leading-relaxed font-mono text-[11px]"></textarea>
+                        </div>
+
+                        <!-- 1.3 Tujuan Penyusunan Laporan -->
+						<div>
+							<div class="flex items-center justify-between mb-1">
+								<label class="block text-slate-300 font-semibold">1.3 Tujuan Penyusunan Laporan</label>
+								<button onclick="generateSpecificBab1AI('tujuan')" class="px-2 py-0.5 rounded bg-sky-600/30 hover:bg-sky-600 border border-sky-500/40 text-[10px] text-sky-200 hover:text-white transition flex items-center gap-1">
+									<i class="fa-solid fa-sparkles text-[9px] text-amber-300"></i> AI Susun
+								</button>
+							</div>
+							<textarea id="bab1Tujuan" rows="3" oninput="updateBab1Preview()" placeholder="Tujuan laporan..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-indigo-500 outline-none leading-relaxed"></textarea>
+						</div>
+
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1">1.4 Visi dan Misi Penyelenggaraan Pemerintahan Desa</label>
+                            <textarea id="bab1VisiMisi" rows="3" oninput="updateBab1Preview()" placeholder="Visi dan Misi Desa..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-indigo-500 outline-none leading-relaxed"></textarea>
+                        </div>
+
+                        <!-- 1.5 Strategi dan Kebijakan -->
+						<div>
+							<div class="flex items-center justify-between mb-1">
+								<label class="block text-slate-300 font-semibold">1.5 Strategi dan Kebijakan</label>
+								<button onclick="generateSpecificBab1AI('strategi')" class="px-2 py-0.5 rounded bg-sky-600/30 hover:bg-sky-600 border border-sky-500/40 text-[10px] text-sky-200 hover:text-white transition flex items-center gap-1">
+									<i class="fa-solid fa-sparkles text-[9px] text-amber-300"></i> AI Susun
+								</button>
+							</div>
+							<textarea id="bab1Strategi" rows="3" oninput="updateBab1Preview()" placeholder="Strategi dan Kebijakan Pelaksanaan Pembangunan Desa..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-slate-200 focus:border-indigo-500 outline-none leading-relaxed"></textarea>
+						</div>
+						
+                    </div>
+                </div>
+
+                <!-- Section 3: Form Dynamic Bidang Permendagri 46/2016 -->
+                <div class="bg-slate-800/90 rounded-2xl border border-slate-700/80 p-5 shadow-xl text-white">
+                    <div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
+                        <div>
+                            <h3 class="font-bold text-sm text-emerald-400 flex items-center gap-2">
+                                <i class="fa-solid fa-list-ol"></i> 3. Data Kegiatan Per Bidang APBDes
+                            </h3>
+                            <p class="text-[11px] text-slate-400 mt-0.5">Sesuai Klasifikasi Permendagri No. 46 Tahun 2016</p>
+                        </div>
+                        <button onclick="generateAllNarratives()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/30 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-brain"></i> Generate Semua Narasi AI
+                        </button>
+                    </div>
+
+                    <!-- Bidang Accordion / Tabs -->
+                    <div id="bidangContainer" class="flex flex-col gap-4">
+                        <!-- Bidang items will be dynamically created by JS -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Real-time Live Document Preview (5 Columns) -->
+            <div class="lg:col-span-5 flex flex-col gap-4 sticky top-20">
+                <div class="flex items-center justify-between no-print text-white">
+                    <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-eye text-indigo-400"></i> Preview Dokumen Resmi
+                    </h3>
+                    <div class="flex items-center gap-2">
+						<button onclick="saveToSheets()" id="btnSaveSheet" class="px-2.5 py-1 rounded bg-emerald-700 hover:bg-emerald-600 text-white text-xs font-semibold transition flex items-center gap-1">
+							<i class="fa-solid fa-cloud-arrow-up"></i> Simpan
+						</button>
+                        <button onclick="copyFullReportText()" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs transition flex items-center gap-1">
+                            <i class="fa-regular fa-copy"></i> Salin Teks
+                        </button>
+                        <button onclick="triggerPrint()" class="px-3 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1">
+                            <i class="fa-solid fa-print"></i> Cetak
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Document Sheet Container (A4 Visual Mockup & Printable Area) -->
+                <div id="printableArea" class="preview-container bg-white text-slate-900 rounded-2xl shadow-2xl p-6 sm:p-8 text-xs font-serif leading-relaxed border border-slate-200 max-h-[80vh] overflow-y-auto">
+                    
+                    <!-- Kop Surat Desa -->
+                    <div id="previewKop" class="border-b-4 border-double border-slate-900 pb-4 mb-6 text-center">
+                        <h4 class="font-sans font-bold text-sm tracking-wider uppercase">PEMERINTAH KABUPATEN <span id="prevKabupaten">BREBES</span></h4>
+                        <h4 class="font-sans font-bold text-sm tracking-wider uppercase">KECAMATAN <span id="prevKecamatan">SIRAMPOG</span></h4>
+                        <h3 class="font-sans font-extrabold text-lg tracking-widest uppercase text-indigo-950 mt-0.5">PEMERINTAH DESA <span id="prevDesa">KALIGIRI</span></h3>
+                        <p class="font-sans text-[10px] text-slate-600 italic mt-1">Kantor Kepala Desa <span id="prevDesaSub">Kaligiri</span>, Jln. Raya Utama Desa No. 01 Kode Pos 52272</p>
+                    </div>
+
+                    <!-- Judul Laporan -->
+                    <div class="text-center mb-6">
+                        <h2 id="prevDocTitle" class="font-sans font-bold text-sm sm:text-base uppercase underline text-slate-900">
+                            LAPORAN PENYELENGGARAAN PEMERINTAHAN DESA (LPPD)
+                        </h2>
+                        <p class="font-sans font-medium text-xs text-slate-700 mt-1">
+                            TAHUN ANGGARAN <span id="prevTahun">2025</span>
+                        </p>
+                    </div>
+
+                    <!-- BAB I PENDAHULUAN (Sistematika Lengkap 1.1 s/d 1.5) -->
+                    <div class="mb-6 text-justify">
+                        <h4 class="page-section-header font-sans font-bold text-xs uppercase mb-3 border-b border-slate-300 pb-0.5 text-indigo-950">
+                            BAB I PENDAHULUAN
+                        </h4>
+                        
+                        <div class="flex flex-col gap-3 font-serif text-[10.5pt] leading-relaxed">
+                            <div>
+                                <h5 class="font-sans font-bold text-[10pt] text-slate-900 mb-0.5">1.1 Latar Belakang</h5>
+                                <p id="prevLatarBelakang" class="whitespace-pre-line text-slate-800">
+                                    Penyelenggaraan Pemerintahan Desa merupakan sub-sistem dari sistem penyelenggaraan pemerintahan daerah dan nasional. Dalam rangka mewujudkan prinsip efisiensi, efektivitas, akuntabilitas, dan transparansi tata kelola pemerintahan desa, Kepala Desa wajib menyampaikan laporan pertanggungjawaban atas pelaksanaan penyelenggaraan pemerintahan desa selama 1 (satu) Tahun Anggaran.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h5 class="font-sans font-bold text-[10pt] text-slate-900 mb-0.5">1.2 Dasar Hukum</h5>
+                                <div id="prevDasarHukum" class="whitespace-pre-line text-slate-800 font-sans text-[9.5pt] pl-3 border-l-2 border-indigo-200">
+                                    1. Undang-Undang Nomor 6 Tahun 2014 tentang Desa;
+2. Peraturan Pemerintah Nomor 43 Tahun 2014 tentang Peraturan Pelaksanaan Undang-Undang Nomor 6 Tahun 2014 tentang Desa;
+3. Peraturan Menteri Dalam Negeri Nomor 46 Tahun 2016 tentang Laporan Kepala Desa;
+4. Peraturan Menteri Dalam Negeri Nomor 20 Tahun 2018 tentang Pengelolaan Keuangan Desa;
+5. Peraturan Desa tentang Anggaran Pendapatan dan Belanja Desa (APBDesa) Tahun Anggaran Berjalan.
+                                </div>
+                            </div>
+
+                            <div>
+                                <h5 class="font-sans font-bold text-[10pt] text-slate-900 mb-0.5">1.3 Tujuan Penyusunan Laporan</h5>
+                                <p id="prevTujuan" class="whitespace-pre-line text-slate-800">
+                                    Tujuan penyusunan laporan ini adalah memberikan gambaran objektif mengenai capaian kinerja penyelenggaraan pemerintahan desa, penggunaan anggaran APBDesa, keberhasilan pembangunan, serta kendala yang dihadapi sebagai bahan evaluasi dan pembinaan oleh Pemerintah Kabupaten/Kecamatan serta pertanggungjawaban kepada masyarakat.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h5 class="font-sans font-bold text-[10pt] text-slate-900 mb-0.5">1.4 Visi dan Misi Penyelenggaraan Pemerintahan Desa</h5>
+                                <p id="prevVisiMisi" class="whitespace-pre-line text-slate-800">
+                                    Visi: "Mewujudkan Desa Mandiri, Sejahtera, Transparan, dan Berdaya Saing Berbasis Gotong Royong."
+Misi:
+1. Meningkatkan kualitas pelayanan publik dan tata kelola pemerintahan desa yang bersih.
+2. Mempercepat pembangunan infrastruktur perdesaan dan perekonomian warga.
+3. Mengembangkan potensi sumber daya lokal serta ketahanan sosial masyarakat.
+                                </p>
+                            </div>
+
+                            <div>
+                                <h5 class="font-sans font-bold text-[10pt] text-slate-900 mb-0.5">1.5 Strategi dan Kebijakan</h5>
+                                <p id="prevStrategi" class="whitespace-pre-line text-slate-800">
+                                    Strategi dan kebijakan yang ditempuh meliputi penguatan perencanaan partisipatif Musrenbangdes, pengalokasian anggaran APBDesa berbasis skala prioritas kebutuhan masyarakat, optimalisasi pemanfaatan dana transfer desa, serta kolaborasi aktif antara pemerintah desa, BPD, dan lembaga kemasyarakatan.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Per Bidang (Populated Dynamically) -->
+                    <div id="previewContentBidang" class="flex flex-col gap-6">
+                        <!-- Populated via JS -->
+                    </div>
+
+                    <!-- Penutup & Tanda Tangan -->
+                    <div class="mt-8 pt-4 border-t border-slate-200">
+                        <div class="flex justify-between items-end font-sans">
+                            <div class="text-center text-[10pt]">
+                                <p class="invisible">Tanggal</p>
+                                <p>Sekretaris Desa <span id="prevDesaTTD">Kaligiri</span></p>
+                                <div class="h-16"></div>
+                                <p id="prevSekdesName" class="font-bold underline text-slate-900">( Sekdes )</p>
+                            </div>
+                            <div class="text-center text-[10pt]">
+                                <p><span id="prevKabTTD">Brebes</span>, 31 Desember <span id="prevTahunTTD">2025</span></p>
+                                <p class="font-semibold">Kepala Desa <span id="prevDesaTTD2">Kaligiri</span></p>
+                                <div class="h-16"></div>
+                                <p id="prevKadesName" class="font-bold underline text-slate-900">( Nama Kepala Desa )</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+<!-- ===== MODAL GOOGLE SHEETS ===== -->
+<div id="sheetsModal" class="no-print fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-800 rounded-2xl border border-slate-700 shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col text-white">
+        <!-- Header Modal -->
+        <div class="flex items-center justify-between p-5 border-b border-slate-700">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center">
+                    <i class="fa-brands fa-google-drive text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base">Google Sheets Cloud Storage</h3>
+                    <p class="text-[11px] text-slate-400">Simpan & muat data LPPD/LKPPD dari Google Sheets</p>
+                </div>
+            </div>
+            <button onclick="closeSheetsPanel()" class="w-8 h-8 rounded-lg bg-slate-700 hover:bg-slate-600 flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Status koneksi -->
+        <div id="gasStatusBar" class="px-5 py-2 bg-slate-900/60 text-[11px] flex items-center gap-2 border-b border-slate-700">
+            <span id="gasStatusDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span id="gasStatusText" class="text-slate-400">Belum terhubung</span>
+        </div>
+
+        <!-- Tab -->
+        <div class="flex border-b border-slate-700 px-5">
+            <button onclick="switchSheetsTab('save')" id="tabSave" class="px-4 py-2.5 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-400">
+                <i class="fa-solid fa-cloud-arrow-up mr-1"></i> Simpan
+            </button>
+            <button onclick="switchSheetsTab('load')" id="tabLoad" class="px-4 py-2.5 text-xs font-semibold text-slate-400 border-b-2 border-transparent">
+                <i class="fa-solid fa-cloud-arrow-down mr-1"></i> Muat Data
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="flex-1 overflow-y-auto p-5">
+
+            <!-- TAB SAVE -->
+            <div id="paneSave" class="flex flex-col gap-4">
+                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Nama Dokumen / ID</label>
+                    <input type="text" id="sheetDocId" placeholder="Otomatis jika kosong" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:border-emerald-500 outline-none">
+                    <p class="text-[10px] text-slate-500 mt-1.5">
+                        <i class="fa-solid fa-info-circle"></i> Gunakan ID yang sama untuk menimpa data lama. Kosongkan untuk membuat ID baru.
+                    </p>
+                </div>
+
+                <div class="bg-slate-900 rounded-xl p-4 border border-slate-700">
+                    <p class="text-xs text-slate-300 mb-2"><i class="fa-solid fa-list-check text-emerald-400"></i> Ringkasan yang akan disimpan:</p>
+                    <ul class="text-[11px] text-slate-400 space-y-1 pl-4">
+                        <li>• Identitas Desa: <span id="sumDesa" class="text-white">-</span></li>
+                        <li>• Tahun: <span id="sumTahun" class="text-white">-</span></li>
+                        <li>• Mode Laporan: <span id="sumMode" class="text-white">LPPD</span></li>
+                        <li>• Total Kegiatan: <span id="sumKegiatan" class="text-white">0</span></li>
+                        <li>• Narasi AI: <span id="sumNarasi" class="text-white">0</span> bidang</li>
+                    </ul>
+                </div>
+
+                <button onclick="saveToSheets()" id="btnDoSave" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 font-bold text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 active:scale-[0.98]">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Simpan ke Google Sheets
+                </button>
+            </div>
+
+            <!-- TAB LOAD -->
+            <div id="paneLoad" class="hidden flex-col gap-3">
+                <button onclick="refreshSheetsList()" class="self-end text-xs text-slate-400 hover:text-white transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate"></i> Refresh
+                </button>
+                <div id="sheetsList" class="flex flex-col gap-2">
+                    <p class="text-xs text-slate-500 italic text-center py-6">Klik "Refresh" untuk memuat daftar</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+		
+    </main>
+
+    <!-- Footer -->
+    <footer class="no-print mt-auto border-t border-slate-800 bg-slate-950 py-4 text-center text-xs text-slate-500">
+        <p>Aplikasi Penyusun LPPD & LKPPD Desa • Ditenagai oleh Gemini 3 Flash AI API • Format Permendagri No. 46 Tahun 2016</p>
+    </footer>
+
+    <!-- App State & Script Logic -->
+    <script>
+        // Data Structure matching Permendagri 46/2016 5 Main Fields
+        const defaultFields = [
+            {
+                id: 'bidang1',
+                code: '1',
+                title: 'Bidang Penyelenggaraan Pemerintahan Desa',
+                icon: 'fa-landmark-flag',
+                kegiatan: []
+            },
+            {
+                id: 'bidang2',
+                code: '2',
+                title: 'Bidang Pelaksanaan Pembangunan Desa',
+                icon: 'fa-trowel-bricks',
+                kegiatan: []
+            },
+            {
+                id: 'bidang3',
+                code: '3',
+                title: 'Bidang Pembinaan Kemasyarakatan',
+                icon: 'fa-people-group',
+                kegiatan: []
+            },
+            {
+                id: 'bidang4',
+                code: '4',
+                title: 'Bidang Pemberdayaan Masyarakat',
+                icon: 'fa-hand-holding-hand',
+                kegiatan: []
+            },
+            {
+                id: 'bidang5',
+                code: '5',
+                title: 'Bidang Penanggulangan Bencana, Emergency & Mendesak',
+                icon: 'fa-kit-medical',
+                kegiatan: []
+            }
+        ];
+
+        const defaultDasarHukumText = `1. Undang-Undang Nomor 6 Tahun 2014 tentang Desa;
+2. Peraturan Pemerintah Nomor 43 Tahun 2014 tentang Peraturan Pelaksanaan Undang-Undang Nomor 6 Tahun 2014 tentang Desa;
+3. Peraturan Menteri Dalam Negeri Nomor 46 Tahun 2016 tentang Laporan Kepala Desa;
+4. Peraturan Menteri Dalam Negeri Nomor 20 Tahun 2018 tentang Pengelolaan Keuangan Desa;
+5. Peraturan Daerah Kabupaten tentang Pedoman Penyelenggaraan Pemerintahan Desa;
+6. Peraturan Desa tentang Anggaran Pendapatan dan Belanja Desa (APBDesa) Tahun Anggaran Berjalan.`;
+
+		let reportMode = 'LPPD'; // 'LPPD' or 'LKPPD'
+        let fieldsData = JSON.parse(JSON.stringify(defaultFields));
+        let narratives = {}; // Store generated AI narratives per field id
+		// ============ KONFIGURASI GOOGLE SHEETS ============
+		//const GAS_URL = 'https://script.google.com/macros/s/AKfycbzITv22uv0YMgE1RnXkRXSp642if-CiUp2KO8RKQyAW8ct2ufvgBPGwBdVseSHdcwhVdg/exec';
+		const GAS_URL = 'https://script.google.com/macros/s/AKfycbwHiWaX2RnZCPuD9M8-ACyfgtq9MMA5EFkEMeaezfoJN_p97lxrd2mQMjtqZRpaKUXB/exec';
+		
+		let currentDocId = localStorage.getItem('lppd_current_id') || null;
+		const ACCESS_TOKEN = 'seksi-pmd-sirampog-hebat-52272-2026';
+		
+		// State Sesi User
+		let currentUser = JSON.parse(sessionStorage.getItem('lppd_user')) || null;
+
+		// Fungsi Login
+		async function handleLogin(e) {
+			e.preventDefault();
+			const username = document.getElementById('loginUsername').value;
+			const password = document.getElementById('loginPassword').value;
+			const btn = document.getElementById('btnLogin');
+			const originalText = btn.innerHTML;
+			
+			btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Memverifikasi...';
+			btn.disabled = true;
+
+			try {
+				const res = await fetch(GAS_URL, {
+					method: 'POST',
+					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+					body: JSON.stringify({
+						action: 'login',
+						token: ACCESS_TOKEN,
+						username: username,
+						password: password
+					})
+				});
+				const result = await res.json();
+				
+				if (!result.ok) throw new Error(result.error);
+
+				// Sukses
+				currentUser = result.user;
+				sessionStorage.setItem('lppd_user', JSON.stringify(currentUser));
+				
+				Swal.fire({
+					icon: 'success',
+					title: 'Login Berhasil',
+					text: `Selamat datang, ${currentUser.role === 'admin_kecamatan' ? 'Admin Kecamatan' : 'Desa ' + currentUser.desa}`,
+					timer: 1500,
+					showConfirmButton: false
+				});
+				
+				initAppForUser();
+				
+			} catch (err) {
+				Swal.fire('Gagal', err.message, 'error');
+			} finally {
+				btn.innerHTML = originalText;
+				btn.disabled = false;
+			}
+		}
+
+		// Fungsi Inisialisasi Aplikasi Berdasarkan Role
+		function initAppForUser() {
+			document.getElementById('loginScreen').style.display = 'none'; // Sembunyikan login
+			
+			// Tampilkan info user di header (kita buat elemennya nanti)
+			if (document.getElementById('userInfoBadge')) {
+				const roleBadge = currentUser.role === 'admin_kecamatan' 
+					? '<span class="bg-purple-500/20 text-purple-300 border-purple-500/30 px-2 py-0.5 rounded text-[10px]">KECAMATAN</span>' 
+					: `<span class="bg-sky-500/20 text-sky-300 border-sky-500/30 px-2 py-0.5 rounded text-[10px]">DESA ${currentUser.desa}</span>`;
+					
+				document.getElementById('userInfoBadge').innerHTML = `
+					<div class="flex items-center gap-2">
+						<i class="fa-solid fa-user-circle text-slate-400"></i>
+						<span class="text-xs text-slate-200">${currentUser.username}</span>
+						${roleBadge}
+						<button onclick="logout()" class="ml-2 text-rose-400 hover:text-rose-300 text-xs" title="Logout"><i class="fa-solid fa-power-off"></i></button>
+					</div>
+				`;
+			}
+
+			// Kunci inputan desa jika role = desa
+			if (currentUser.role === 'desa') {
+				const infoDesa = document.getElementById('infoDesa');
+				infoDesa.value = currentUser.desa;
+				infoDesa.readOnly = true;
+				infoDesa.classList.add('opacity-70', 'cursor-not-allowed');
+				updatePreviewHeader(); // Update kop surat
+			}
+
+			renderFieldsForm();
+			updateStats();
+		}
+
+		function logout() {
+			sessionStorage.removeItem('lppd_user');
+			currentUser = null;
+			location.reload(); // Refresh halaman
+		}
+
+        // Initialize App on DOM Ready
+		document.addEventListener('DOMContentLoaded', () => {
+			// 1. Cek Sesi User Terlebih Dahulu
+			if (currentUser) {
+				initAppForUser(); 
+			} else {
+				document.getElementById('loginScreen').style.display = 'flex';
+				return; 
+			}
+
+			renderFieldsForm();
+			resetDefaultDasarHukum();
+			updatePreviewHeader();
+			updateBab1Preview();
+			renderPreviewContent();
+			updateStats();
+		});
+
+        function resetDefaultDasarHukum() {
+            document.getElementById('bab1DasarHukum').value = defaultDasarHukumText;
+            updateBab1Preview();
+        }
+
+        // Live Update BAB I Preview Sub-Sections 1.1 - 1.5
+        function updateBab1Preview() {
+            const desa = document.getElementById('infoDesa').value || 'Kaligiri';
+            const kec = document.getElementById('infoKecamatan').value || 'Sirampog';
+            const kab = document.getElementById('infoKabupaten').value || 'Brebes';
+            const thn = document.getElementById('infoTahun').value || '2025';
+
+            const latar = document.getElementById('bab1LatarBelakang').value || 
+                `Penyelenggaraan Pemerintahan Desa ${desa} Kecamatan ${kec} Kabupaten ${kab} merupakan sub-sistem dari penyelenggaraan pemerintahan daerah dan nasional. Laporan ini disusun sebagai wujud akuntabilitas atas pelaksanaan APBDesa Tahun Anggaran ${thn}.`;
+            
+            const hukum = document.getElementById('bab1DasarHukum').value || defaultDasarHukumText;
+            
+            const tujuan = document.getElementById('bab1Tujuan').value || 
+                `Tujuan penyusunan ${reportMode} ini adalah memberikan gambaran objektif capaian kinerja penyelenggaraan pemerintahan Desa ${desa} selama TA ${thn} sebagai bahan masukan, pembinaan, dan evaluasi pertanggungjawaban.`;
+            
+            const visimisi = document.getElementById('bab1VisiMisi').value || 
+                `Visi: "Mewujudkan Desa ${desa} Mandiri, Sejahtera, Transparan, dan Berdaya Saing."\nMisi:\n1. Meningkatkan kualitas pelayanan publik dan akuntabilitas Pemdes.\n2. Mempercepat pembangunan infrastruktur perdesaan secara merata.`;
+
+            const strategi = document.getElementById('bab1Strategi').value || 
+                `Mengoptimalkan pengalokasian anggaran APBDesa ${thn} secara proporsional, memperkuat transparansi tata kelola desa, serta memicu partisipasi swadaya masyarakat desa.`;
+
+            document.getElementById('prevLatarBelakang').innerText = latar;
+            document.getElementById('prevDasarHukum').innerText = hukum;
+            document.getElementById('prevTujuan').innerText = tujuan;
+            document.getElementById('prevVisiMisi').innerText = visimisi;
+            document.getElementById('prevStrategi').innerText = strategi;
+        }
+
+        // Generate BAB I Narrative using Gemini AI
+        async function generateBab1AI() {
+            const desa = document.getElementById('infoDesa').value || 'Kaligiri';
+            const kec = document.getElementById('infoKecamatan').value || 'Sirampog';
+            const kab = document.getElementById('infoKabupaten').value || 'Brebes';
+            const thn = document.getElementById('infoTahun').value || '2025';
+
+            showToast('AI sedang merangkai BAB I PENDAHULUAN...', 'info');
+
+            const prompt = `Buatkan draf teks formal untuk BAB I PENDAHULUAN laporan ${reportMode} Pemerintah Desa ${desa}, Kecamatan ${kec}, Kabupaten ${kab} Tahun Anggaran ${thn}.
+
+Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) dengan key sebagai berikut:
+{
+  "latarBelakang": "narasi latar belakang formal 1-2 paragraf",
+  "tujuan": "poin-poin atau narasi tujuan penyusunan laporan",
+  "visiMisi": "visi dan misi pemerintahan desa",
+  "strategi": "strategi dan kebijakan pembangunan desa"
+}`;
+
+            try {
+                const resText = await callGeminiAPI(prompt);
+                const cleanedJson = resText.replace(/```json/g, '').replace(/```/g, '').trim();
+                const data = JSON.parse(cleanedJson);
+
+                if (data.latarBelakang) document.getElementById('bab1LatarBelakang').value = data.latarBelakang;
+                if (data.tujuan) document.getElementById('bab1Tujuan').value = data.tujuan;
+                if (data.visiMisi) document.getElementById('bab1VisiMisi').value = data.visiMisi;
+                if (data.strategi) document.getElementById('bab1Strategi').value = data.strategi;
+
+                updateBab1Preview();
+                showToast('BAB I PENDAHULUAN berhasil dirangkai AI!', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Gagal memproses BAB I AI, silakan isi manual.', 'error');
+            }
+        }
+		
+		// Generate Narasi Spesifik untuk 1.1, 1.3, atau 1.5
+		async function generateSpecificBab1AI(type) {
+			const desa = document.getElementById('infoDesa').value || 'Kaligiri';
+			const kec = document.getElementById('infoKecamatan').value || 'Sirampog';
+			const kab = document.getElementById('infoKabupaten').value || 'Brebes';
+			const thn = document.getElementById('infoTahun').value || '2025';
+
+			// Tentukan target elemen berdasarkan tipe
+			let targetId = '';
+			let titleLabel = '';
+			
+			if (type === 'latar') {
+				targetId = 'bab1LatarBelakang';
+				titleLabel = 'Latar Belakang';
+			} else if (type === 'tujuan') {
+				targetId = 'bab1Tujuan';
+				titleLabel = 'Tujuan Penyusunan';
+			} else if (type === 'strategi') {
+				targetId = 'bab1Strategi';
+				titleLabel = 'Strategi dan Kebijakan';
+			}
+
+			let textarea = document.getElementById(targetId);
+			let originalText = textarea.value;
+			
+			// Tampilkan loading di textarea
+			textarea.value = "⏳ AI sedang menyusun narasi...";
+			textarea.disabled = true;
+			showToast(`AI sedang menyusun ${titleLabel}...`, 'info');
+
+			// Susun Prompt berdasarkan tipe
+			let prompt = '';
+			if (type === 'latar') {
+				prompt = `Buatkan narasi formal untuk sub-bab "1.1 Latar Belakang" pada laporan ${reportMode} Pemerintah Desa ${desa}, Kecamatan ${kec}, Kabupaten ${kab} Tahun Anggaran ${thn}. 
+		Fokus pada pentingnya akuntabilitas, transparansi, dan dasar pemikiran mengapa laporan ini wajib disusun. Buat dalam 1-2 paragraf panjang yang baku (EYD).`;
+			} else if (type === 'tujuan') {
+				prompt = `Buatkan narasi formal untuk sub-bab "1.3 Tujuan Penyusunan Laporan" pada laporan ${reportMode} Pemerintah Desa ${desa}, Kecamatan ${kec}, Kabupaten ${kab} Tahun Anggaran ${thn}.
+		Fokus pada tujuan spesifik mengapa laporan ini dibuat (misal: sebagai bahan evaluasi, wujud transparansi, tolok ukur kinerja, dsb). Sajikan dalam bentuk poin-poin bernomor atau paragraf yang rapi dan baku (EYD).`;
+			} else if (type === 'strategi') {
+				prompt = `Buatkan narasi formal untuk sub-bab "1.5 Strategi dan Kebijakan" pada laporan ${reportMode} Pemerintah Desa ${desa}, Kecamatan ${kec}, Kabupaten ${kab} Tahun Anggaran ${thn}.
+		Fokus pada pendekatan, metode, dan langkah strategis yang diambil oleh pemerintah desa dalam melaksanakan pembangunan dan pelayanan masyarakat. Buat dalam bentuk paragraf atau poin-poin yang baku (EYD).`;
+			}
+
+			try {
+				const result = await callGeminiAPI(prompt);
+				textarea.value = result;
+				updateBab1Preview(); // Update preview di sebelah kanan
+				showToast(`Narasi ${titleLabel} berhasil dibuat!`, 'success');
+			} catch (err) {
+				console.error(err);
+				textarea.value = originalText; // Kembalikan teks asli jika gagal
+				showToast(`Gagal: ${err.message}`, 'error');
+			} finally {
+				textarea.disabled = false;
+			}
+		}
+
+        // Switch Report Mode (LPPD vs LKPPD)
+        function switchReportMode(mode) {
+            reportMode = mode;
+            const btnLPPD = document.getElementById('btnModeLPPD');
+            const btnLKPPD = document.getElementById('btnModeLKPPD');
+            const bannerTitle = document.getElementById('modeTitle');
+            const bannerDesc = document.getElementById('modeDesc');
+            const bannerIcon = document.getElementById('modeIcon');
+            const prevDocTitle = document.getElementById('prevDocTitle');
+
+            if (mode === 'LPPD') {
+                btnLPPD.className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white shadow-md";
+                btnLKPPD.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all duration-200 flex items-center gap-2";
+                
+                bannerTitle.innerText = "Laporan Penyelenggaraan Pemerintahan Desa (LPPD)";
+                bannerDesc.innerText = "Laporan tertulis Kepala Desa kepada Bupati/Wali Kota melalui Camat yang memuat seluruh capaian pelaksanaan kegiatan penyelenggaraan pemerintahan desa selama 1 (satu) Tahun Anggaran.";
+                bannerIcon.className = "fa-solid fa-file-contract text-2xl";
+                prevDocTitle.innerText = "LAPORAN PENYELENGGARAAN PEMERINTAHAN DESA (LPPD)";
+            } else {
+                btnLKPPD.className = "px-4 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 flex items-center gap-2 bg-indigo-600 text-white shadow-md";
+                btnLPPD.className = "px-4 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition-all duration-200 flex items-center gap-2";
+                
+                bannerTitle.innerText = "Laporan Keterangan Penyelenggaraan Pemerintahan Desa (LKPPD)";
+                bannerDesc.innerText = "Laporan tertulis Kepala Desa kepada Badan Permusyawaratan Desa (BPD) yang berisi ringkasan eksekutif pertanggungjawaban pelaksanaan APBDesa sebagai bahan evaluasi dan pengawasan BPD.";
+                bannerIcon.className = "fa-solid fa-users-rectangle text-2xl";
+                prevDocTitle.innerText = "LAPORAN KETERANGAN PENYELENGGARAAN PEMERINTAHAN DESA (LKPPD)";
+            }
+
+            showToast(`Mode laporan diubah ke ${mode}`, 'info');
+            updateBab1Preview();
+            renderPreviewContent();
+        }
+
+        // Render Dynamic Field Forms
+        function renderFieldsForm() {
+            const container = document.getElementById('bidangContainer');
+            container.innerHTML = '';
+
+            fieldsData.forEach((field, fIdx) => {
+                const fieldCard = document.createElement('div');
+                fieldCard.className = 'bg-slate-900/80 rounded-xl border border-slate-700/60 p-4 transition duration-200';
+                
+                let kegiatanHTML = '';
+                field.kegiatan.forEach((keg, kIdx) => {
+                    kegiatanHTML += `
+                        <div class="bg-slate-800/90 rounded-lg p-3 border border-slate-700 flex flex-col gap-3 relative group">
+                            <button onclick="removeKegiatan(${fIdx}, ${kIdx})" class="absolute top-2 right-2 text-slate-500 hover:text-rose-400 p-1 rounded transition text-xs" title="Hapus Kegiatan">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 pr-6">
+                                <div class="sm:col-span-6">
+                                    <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">NAMA KEGIATAN</label>
+                                    <input type="text" value="${escapeHtml(keg.nama)}" oninput="updateKegiatan(${fIdx}, ${kIdx}, 'nama', this.value)" placeholder="Contoh: Pembangunan Jalan Usaha Tani" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white focus:border-indigo-500 outline-none">
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">TARGET / VOLUME</label>
+                                    <input type="text" value="${escapeHtml(keg.volume)}" oninput="updateKegiatan(${fIdx}, ${kIdx}, 'volume', this.value)" placeholder="Contoh: 500 Meter / 20 KPM" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white focus:border-indigo-500 outline-none">
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">ANGGARAN (RP)</label>
+                                    <input type="number" value="${keg.anggaran || ''}" oninput="updateKegiatan(${fIdx}, ${kIdx}, 'anggaran', this.value)" placeholder="0" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-emerald-400 font-mono focus:border-indigo-500 outline-none">
+                                </div>
+                                <div class="sm:col-span-6">
+                                    <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">REALISASI (RP)</label>
+                                    <input type="number" value="${keg.realisasi || ''}" oninput="updateKegiatan(${fIdx}, ${kIdx}, 'realisasi', this.value)" placeholder="0" class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-emerald-400 font-mono focus:border-indigo-500 outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[10px] font-semibold text-slate-400 mb-0.5">CATATAN CAPAIAN / KENDALA KLASIFIKASI</label>
+                                <textarea rows="2" oninput="updateKegiatan(${fIdx}, ${kIdx}, 'kendala', this.value)" placeholder="Jelaskan secara singkat kendala teknis atau dampak positif kegiatan ini..." class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-slate-200 focus:border-indigo-500 outline-none">${escapeHtml(keg.kendala || '')}</textarea>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                fieldCard.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-xs">
+                                ${field.code}
+                            </span>
+                            <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                                <i class="fa-solid ${field.icon} text-indigo-400"></i> ${field.title}
+                            </h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="addKegiatan(${fIdx})" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-indigo-300 hover:text-white transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-[10px]"></i> Tambah Kegiatan
+                            </button>
+                            <button onclick="generateSingleNarrative('${field.id}')" class="px-2.5 py-1 rounded bg-indigo-600/30 hover:bg-indigo-600 border border-indigo-500/40 text-xs text-indigo-200 hover:text-white transition flex items-center gap-1">
+                                <i class="fa-solid fa-sparkles text-[10px] text-amber-400"></i> AI Narasi
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-3">
+                        ${field.kegiatan.length > 0 ? kegiatanHTML : '<p class="text-[11px] text-slate-500 italic text-center py-3 border border-dashed border-slate-800 rounded-lg">Belum ada kegiatan ditambahkan di bidang ini.</p>'}
+                    </div>
+
+                    <!-- Display Narrative Box if generated -->
+                    <div id="narrativeBox_${field.id}" class="mt-4 ${narratives[field.id] ? '' : 'hidden'} bg-indigo-950/40 border border-indigo-500/30 rounded-xl p-3">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <span class="text-[10px] font-bold text-indigo-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                <i class="fa-solid fa-robot text-amber-400"></i> Uraian Narasi AI (${reportMode})
+                            </span>
+                            <button onclick="copyText('narrativeText_${field.id}')" class="text-[10px] text-slate-400 hover:text-white transition">
+                                <i class="fa-regular fa-copy"></i> Salin
+                            </button>
+                        </div>
+                        <p id="narrativeText_${field.id}" class="text-xs text-slate-200 whitespace-pre-line leading-relaxed font-sans">${escapeHtml(narratives[field.id] || '')}</p>
+                    </div>
+                `;
+
+                container.appendChild(fieldCard);
+            });
+        }
+
+        // Add New Activity Row
+        function addKegiatan(fIdx) {
+            fieldsData[fIdx].kegiatan.push({
+                nama: '',
+                volume: '',
+                anggaran: 0,
+                realisasi: 0,
+                kendala: ''
+            });
+            renderFieldsForm();
+            renderPreviewContent();
+            updateStats();
+        }
+
+        // Remove Activity Row
+        function removeKegiatan(fIdx, kIdx) {
+            fieldsData[fIdx].kegiatan.splice(kIdx, 1);
+            renderFieldsForm();
+            renderPreviewContent();
+            updateStats();
+        }
+
+        // Update Specific Activity Value
+        function updateKegiatan(fIdx, kIdx, key, val) {
+            fieldsData[fIdx].kegiatan[kIdx][key] = (key === 'anggaran' || key === 'realisasi') ? parseFloat(val) || 0 : val;
+            renderPreviewContent();
+            updateStats();
+        }
+
+        // Live Update Stats Banner
+        function updateStats() {
+            let totalAnggaran = 0;
+            let totalRealisasi = 0;
+            let countKegiatan = 0;
+
+            fieldsData.forEach(f => {
+                f.kegiatan.forEach(k => {
+                    totalAnggaran += (k.anggaran || 0);
+                    totalRealisasi += (k.realisasi || 0);
+                    countKegiatan++;
+                });
+            });
+
+            const persentase = totalAnggaran > 0 ? ((totalRealisasi / totalAnggaran) * 100).toFixed(1) : 0;
+
+            document.getElementById('statTotalAnggaran').innerText = formatRupiah(totalAnggaran);
+            document.getElementById('statTotalRealisasi').innerText = formatRupiah(totalRealisasi);
+            document.getElementById('statPersentase').innerText = `${persentase}%`;
+            document.getElementById('statProgressBar').style.width = `${Math.min(persentase, 100)}%`;
+            document.getElementById('statTotalKegiatan').innerText = `${countKegiatan} Kegiatan`;
+        }
+
+        // Live Header Preview Update
+        function updatePreviewHeader() {
+            const desa = document.getElementById('infoDesa').value || 'SUKAMUJU';
+            const kec = document.getElementById('infoKecamatan').value || 'SIRAMPOG';
+            const kab = document.getElementById('infoKabupaten').value || 'BREBES';
+            const thn = document.getElementById('infoTahun').value || '2025';
+            const kades = document.getElementById('infoKades').value || 'H. WARTO';
+            const sekdes = document.getElementById('infoSekdes').value || 'AEP SAEPUDIN, S.IP';
+
+            document.getElementById('prevDesa').innerText = desa.toUpperCase();
+            document.getElementById('prevDesaSub').innerText = desa;
+            document.getElementById('prevKecamatan').innerText = kec.toUpperCase();
+            document.getElementById('prevKabupaten').innerText = kab.toUpperCase();
+            document.getElementById('prevTahun').innerText = thn;
+
+            document.querySelectorAll('.prevTahunSpan').forEach(e => e.innerText = thn);
+
+            document.getElementById('prevDesaTTD').innerText = desa;
+            document.getElementById('prevDesaTTD2').innerText = desa;
+            document.getElementById('prevKabTTD').innerText = kab;
+            document.getElementById('prevTahunTTD').innerText = thn;
+
+            document.getElementById('prevKadesName').innerText = kades;
+            document.getElementById('prevSekdesName').innerText = sekdes;
+        }
+
+        // Render Dynamic Document Preview Content
+        function renderPreviewContent() {
+            const container = document.getElementById('previewContentBidang');
+            container.innerHTML = '';
+
+            fieldsData.forEach((field) => {
+                const section = document.createElement('div');
+                section.className = 'flex flex-col gap-2';
+
+                let totalAnggBidang = 0;
+                let totalRealBidang = 0;
+                let tableRows = '';
+
+                field.kegiatan.forEach((k, idx) => {
+                    totalAnggBidang += (k.anggaran || 0);
+                    totalRealBidang += (k.realisasi || 0);
+                    const persen = k.anggaran > 0 ? ((k.realisasi / k.anggaran) * 100).toFixed(1) : 0;
+
+                    tableRows += `
+                        <tr>
+                            <td class="border border-slate-300 px-2 py-1 text-center font-sans">${idx + 1}</td>
+                            <td class="border border-slate-300 px-2 py-1">${escapeHtml(k.nama || '-')}</td>
+                            <td class="border border-slate-300 px-2 py-1 text-center font-sans">${escapeHtml(k.volume || '-')}</td>
+                            <td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(k.anggaran)}</td>
+                            <td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(k.realisasi)}</td>
+                            <td class="border border-slate-300 px-2 py-1 text-center font-sans">${persen}%</td>
+                        </tr>
+                    `;
+                });
+
+                const totalPersenBidang = totalAnggBidang > 0 ? ((totalRealBidang / totalAnggBidang) * 100).toFixed(1) : 0;
+                const narrativeText = narratives[field.id] || `Pelaksanaan kegiatan pada ${field.title} telah disesuaikan dengan rencana APBDesa. Total anggaran dialokasikan sebesar ${formatRupiah(totalAnggBidang)} dengan tingkat penyerapan ${totalPersenBidang}%.`;
+
+                section.innerHTML = `
+                    <h4 class="font-sans font-bold text-xs uppercase mb-1 border-b border-slate-300 pb-0.5 text-indigo-950">
+                        BAB II.${field.code} ${field.title.toUpperCase()}
+                    </h4>
+                    
+                    ${field.kegiatan.length > 0 ? `
+                        <table class="w-full border-collapse border border-slate-300 text-[10pt] mb-2 font-sans">
+                            <thead>
+                                <tr class="bg-slate-100 font-bold text-center">
+                                    <th class="border border-slate-300 px-2 py-1 w-8">No</th>
+                                    <th class="border border-slate-300 px-2 py-1">Nama Kegiatan</th>
+                                    <th class="border border-slate-300 px-2 py-1 w-24">Target/Volume</th>
+                                    <th class="border border-slate-300 px-2 py-1 w-28">Anggaran (Rp)</th>
+                                    <th class="border border-slate-300 px-2 py-1 w-28">Realisasi (Rp)</th>
+                                    <th class="border border-slate-300 px-2 py-1 w-16">%</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                                <tr class="bg-slate-50 font-bold">
+                                    <td colspan="3" class="border border-slate-300 px-2 py-1 text-right">TOTAL ${field.title.toUpperCase()}</td>
+                                    <td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(totalAnggBidang)}</td>
+                                    <td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(totalRealBidang)}</td>
+                                    <td class="border border-slate-300 px-2 py-1 text-center">${totalPersenBidang}%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    ` : '<p class="text-[10pt] italic text-slate-500 mb-2 font-sans">(Tidak ada kegiatan yang direalisasikan pada bidang ini)</p>'}
+
+                    <div class="text-justify text-[11pt] leading-relaxed bg-slate-50/50 p-2.5 rounded border border-slate-200">
+                        <p class="font-sans font-semibold text-[10pt] text-indigo-900 mb-1">Uraian Evaluasi & Analisis Capaian:</p>
+                        <p class="whitespace-pre-line">${escapeHtml(narrativeText)}</p>
+                    </div>
+                `;
+
+                container.appendChild(section);
+            });
+        }
+
+        // INTEGRASI GEMINI AI (SDK / REST API Integration via gemini-3-flash-preview)
+        // ==================================================
+		//   GEMINI AI VIA BACKEND PROXY
+		// ==================================================
+		async function callGeminiAPI(promptText, customSystemPrompt) {
+			try {
+				const response = await fetch(GAS_URL, {
+					method: 'POST',
+					headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // hindari CORS preflight
+					body: JSON.stringify({
+						action: 'ai',
+						token: ACCESS_TOKEN, 
+						prompt: promptText,
+						systemPrompt: customSystemPrompt || undefined,
+						temperature: 0.7,
+						maxTokens: 2048,
+					}),
+				});
+
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status} - backend tidak merespon`);
+				}
+
+				const result = await response.json();
+
+				if (!result.ok) {
+					throw new Error(result.error || 'Gagal memproses AI');
+				}
+
+				if (!result.text) {
+					throw new Error('Backend tidak mengembalikan teks');
+				}
+
+				console.log('[AI via GAS] ✅ Success, length:', result.text.length);
+				return result.text;
+
+			} catch (err) {
+				console.error('[AI via GAS]', err);
+				throw new Error(err.message);
+			}
+		}
+
+        // Generate Narrative for a Specific Field
+        async function generateSingleNarrative(fieldId) {
+            const field = fieldsData.find(f => f.id === fieldId);
+            if (!field || field.kegiatan.length === 0) {
+                showToast(`Tambahkan minimal 1 kegiatan di ${field.title} terlebih dahulu!`, 'warning');
+                return;
+            }
+
+            const narrativeBox = document.getElementById(`narrativeBox_${fieldId}`);
+            const narrativeText = document.getElementById(`narrativeText_${fieldId}`);
+
+            narrativeBox.classList.remove('hidden');
+            narrativeText.innerHTML = `
+                <div class="flex items-center gap-2 text-indigo-300 shimmer p-2 rounded">
+                    <i class="fa-solid fa-spinner animate-spin"></i> Menyusun narasi formal ${reportMode} dengan Gemini AI...
+                </div>
+            `;
+
+            const desa = document.getElementById('infoDesa').value || 'Desa Kaligiri';
+            const tahun = document.getElementById('infoTahun').value || '2025';
+
+            let prompt = `Buatkan narasi uraian laporan untuk ${reportMode} (${reportMode === 'LPPD' ? 'Laporan ke Bupati/Camat' : 'Laporan Pertanggungjawaban ke BPD'}) ${field.title} Pemerintah ${desa} Tahun Anggaran ${tahun}.\n\nData Kegiatan:\n`;
+
+            field.kegiatan.forEach((k, i) => {
+                prompt += `${i + 1}. Kegiatan: ${k.nama}, Target/Vol: ${k.volume}, Anggaran: Rp ${k.anggaran}, Realisasi: Rp ${k.realisasi}, Catatan/Kendala: ${k.kendala || '-'}\n`;
+            });
+
+            prompt += `\nInstruksi Tambahan:
+- Format hasil dalam 2-3 paragraf komprehensif.
+- Paragraf 1: Gambaran umum efisiensi anggaran dan keberhasilan pencapaian target fisik.
+- Paragraf 2: Analisis kendala di lapangan dan solusi penanganan yang dilakukan pemerintah desa.
+- Paragraf 3: Evaluasi dampak langsung bagi kesejahteraan warga desa.
+- Untuk ${reportMode}, pastikan nada penyampaian ${reportMode === 'LPPD' ? 'analitis deskriptif dan akuntabel kepada pembina wilayah' : 'ringkas, rasional, dan responsif terhadap fungsi pengawasan BPD'}.`;
+
+            try {
+                const result = await callGeminiAPI(prompt);
+                narratives[fieldId] = result;
+                narrativeText.innerText = result;
+                renderPreviewContent();
+                showToast(`Narasi AI berhasil dibuat untuk ${field.title}`, 'success');
+            } catch (err) {
+				console.error('[Narrative Error]', err);
+				narrativeText.innerHTML = `
+					<div class="text-rose-400 text-xs">
+						<p class="font-bold mb-1">❌ Gagal memproses narasi AI</p>
+						<p class="text-[11px] opacity-90">${escapeHtml(err.message)}</p>
+					</div>
+				`;
+				showToast(`❌ ${err.message.slice(0, 100)}`, 'error');
+			}
+        }
+
+        // Generate Narratives for All Fields Sequentially
+        async function generateAllNarratives() {
+            let activeCount = 0;
+            fieldsData.forEach(f => { if (f.kegiatan.length > 0) activeCount++; });
+
+            if (activeCount === 0) {
+                showToast('Isikan data kegiatan pada bidang terlebih dahulu!', 'warning');
+                return;
+            }
+
+            showToast('Memulai penyusunan seluruh narasi AI...', 'info');
+            for (const field of fieldsData) {
+                if (field.kegiatan.length > 0) {
+                    await generateSingleNarrative(field.id);
+                }
+            }
+            showToast('Semua narasi bidang selesai disusun!', 'success');
+        }
+
+        // Load Demo Data for Instant Preview
+        function loadDemoData() {
+            document.getElementById('infoDesa').value = "Kaligiri";
+            document.getElementById('infoKecamatan').value = "Sirampog";
+            document.getElementById('infoKabupaten').value = "Brebes";
+            document.getElementById('infoTahun').value = "2025";
+            document.getElementById('infoKades').value = "H. WARTO, S.E.";
+            document.getElementById('infoSekdes').value = "AEP SAEPUDIN, S.IP";
+
+            document.getElementById('bab1LatarBelakang').value = "Penyelenggaraan Pemerintahan Desa Kaligiri Kecamatan Sirampog Kabupaten Brebes merupakan bagian integral dari sistem tata kelola daerah. Laporan ini disusun sesuai amanat Permendagri No. 46 Tahun 2016 sebagai bentuk laporan akuntabilitas penyelenggaraan pemerintahan desa, pelaksanaan pembangunan, pembinaan, dan pemberdayaan masyarakat Tahun Anggaran 2025.";
+            document.getElementById('bab1DasarHukum').value = defaultDasarHukumText;
+            document.getElementById('bab1Tujuan').value = "1. Memberikan gambaran transparan pelaksanaan APBDesa TA 2025.\n2. Sebagai tolok ukur kinerja Kepala Desa dan perangkat desa.\n3. Menyediakan bahan evaluasi bagi Bupati Brebes melalui Camat Sirampog serta pengawasan oleh BPD Desa Kaligiri.";
+            document.getElementById('bab1VisiMisi').value = "Visi:\n\"Terwujudnya Desa Kaligiri yang Mandiri, Sejahtera, Transparan, dan Religius.\"\n\nMisi:\n1. Mewujudkan birokrasi Pemdes yang responsif dan berorientasi melayani.\n2. Peningkatan kualitas sarana prasarana fisik dan ekonomi warga.\n3. Penguatan mitigasi bencana dan perlindungan sosial masyarakat.";
+            document.getElementById('bab1Strategi').value = "1. Pengalokasian dana desa berfokus pada pemulihan ekonomi dan pembangunan sarana produktif.\n2. Optimalisasi sinergi kelembagaan desa (BPD, RT/RW, Karang Taruna, PKK).\n3. Penerapan transparansi anggaran publikasi di setiap dusun.";
+
+            fieldsData = [
+                {
+                    id: 'bidang1',
+                    code: '1',
+                    title: 'Bidang Penyelenggaraan Pemerintahan Desa',
+                    icon: 'fa-landmark-flag',
+                    kegiatan: [
+                        { nama: 'Penyediaan Penghasilan Tetap & Tunjangan Kepala Desa & Perangkat', volume: '12 Bulan', anggaran: 380000000, realisasi: 380000000, kendala: 'Tersalurkan tepat waktu setiap bulan tanpa kendala.' },
+                        { nama: 'Penyelenggaraan Musyawarah Desa (Musdes/Musrenbangdes)', volume: '4 Kali', anggaran: 25000000, realisasi: 24500000, kendala: 'Partisipasi kehadiran tokoh masyarakat mencapai 92%.' }
+                    ]
+                },
+                {
+                    id: 'bidang2',
+                    code: '2',
+                    title: 'Bidang Pelaksanaan Pembangunan Desa',
+                    icon: 'fa-trowel-bricks',
+                    kegiatan: [
+                        { nama: 'Peningkatan Jalan Usaha Tani Beton Dusun II', volume: '450 Meter', anggaran: 220000000, realisasi: 218500000, kendala: 'Sempat terkendala cuaca hujan tinggi pada minggu ke-2 namun rampung tepat target.' },
+                        { nama: 'Pembangunan Posyandu Terintegrasi Dusun I', volume: '1 Unit', anggaran: 150000000, realisasi: 150000000, kendala: 'Fasilitas air bersih dan listrik telah terpasang 100%.' }
+                    ]
+                },
+                {
+                    id: 'bidang3',
+                    code: '3',
+                    title: 'Bidang Pembinaan Kemasyarakatan',
+                    icon: 'fa-people-group',
+                    kegiatan: [
+                        { nama: 'Pembinaan Lembaga Adat dan Karang Taruna Desa', volume: '1 Paket', anggaran: 35000000, realisasi: 35000000, kendala: 'Pelatihan kepemimpinan pemuda berjalan sukses diikuti 50 peserta.' }
+                    ]
+                },
+                {
+                    id: 'bidang4',
+                    code: '4',
+                    title: 'Bidang Pemberdayaan Masyarakat',
+                    icon: 'fa-hand-holding-hand',
+                    kegiatan: [
+                        { nama: 'Pelatihan UMKM Olahan Hasil Perikanan Desa', volume: '30 Ibu Rumah Tangga', anggaran: 40000000, realisasi: 38800000, kendala: 'Peserta telah mendapatkan bantuan modal kemasan higienis.' }
+                    ]
+                },
+                {
+                    id: 'bidang5',
+                    code: '5',
+                    title: 'Bidang Penanggulangan Bencana, Emergency & Mendesak',
+                    icon: 'fa-kit-medical',
+                    kegiatan: [
+                        { nama: 'Penyaluran Bantuan Langsung Tunai (BLT) Desa', volume: '45 KPM / 12 Bln', anggaran: 162000000, realisasi: 162000000, kendala: 'Penyaluran tuntas 100% tepat sasaran sesuai kriteria verifikasi Musdes.' }
+                    ]
+                }
+            ];
+
+            narratives = {};
+            renderFieldsForm();
+            updatePreviewHeader();
+            updateBab1Preview();
+            renderPreviewContent();
+            updateStats();
+            showToast('Data sampel & BAB I berhasil dimuat!', 'success');
+        }
+
+        // Helper Utilities
+        function formatRupiah(number) {
+            return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number || 0);
+        }
+
+        function formatRupiahSimple(number) {
+            return new Intl.NumberFormat('id-ID').format(number || 0);
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function triggerPrint() {
+            window.print();
+        }
+
+        function copyText(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            copyToClipboard(text);
+        }
+
+        function copyFullReportText() {
+            const container = document.querySelector('.preview-container');
+            copyToClipboard(container.innerText);
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Teks berhasil disalin ke clipboard!', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin teks.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-slate-800 text-white border-slate-700';
+            let icon = 'fa-circle-info text-indigo-400';
+
+            if (type === 'success') {
+                bgClass = 'bg-emerald-950/90 text-emerald-100 border-emerald-600/40';
+                icon = 'fa-circle-check text-emerald-400';
+            } else if (type === 'warning') {
+                bgClass = 'bg-amber-950/90 text-amber-100 border-amber-600/40';
+                icon = 'fa-triangle-exclamation text-amber-400';
+            } else if (type === 'error') {
+                bgClass = 'bg-rose-950/90 text-rose-100 border-rose-600/40';
+                icon = 'fa-circle-xmark text-rose-400';
+            }
+
+            toast.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border ${bgClass} shadow-xl backdrop-blur-md transition-all duration-300 transform translate-y-2 text-xs font-medium`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${escapeHtml(message)}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-y-2'), 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+		
+		// ==================================================
+		//   GOOGLE SHEETS INTEGRATION
+		// ==================================================
+
+		function openSheetsPanel() {
+			const modal = document.getElementById('sheetsModal');
+			modal.classList.remove('hidden');
+			document.body.style.overflow = 'hidden';
+
+			// Pre-fill ID jika sudah pernah save
+			if (currentDocId) {
+				document.getElementById('sheetDocId').value = currentDocId;
+			}
+
+			// Update summary
+			updateSaveSummary();
+			testGasConnection();
+			switchSheetsTab('save');
+		}
+
+		function closeSheetsPanel() {
+			document.getElementById('sheetsModal').classList.add('hidden');
+			document.body.style.overflow = '';
+		}
+
+		function switchSheetsTab(tab) {
+			const paneSave = document.getElementById('paneSave');
+			const paneLoad = document.getElementById('paneLoad');
+			const tabSave = document.getElementById('tabSave');
+			const tabLoad = document.getElementById('tabLoad');
+
+			if (tab === 'save') {
+				paneSave.classList.remove('hidden');
+				paneSave.classList.add('flex');
+				paneLoad.classList.add('hidden');
+				paneLoad.classList.remove('flex');
+
+				tabSave.className = 'px-4 py-2.5 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-400';
+				tabLoad.className = 'px-4 py-2.5 text-xs font-semibold text-slate-400 border-b-2 border-transparent';
+				updateSaveSummary();
+			} else {
+				paneSave.classList.add('hidden');
+				paneSave.classList.remove('flex');
+				paneLoad.classList.remove('hidden');
+				paneLoad.classList.add('flex');
+
+				tabSave.className = 'px-4 py-2.5 text-xs font-semibold text-slate-400 border-b-2 border-transparent';
+				tabLoad.className = 'px-4 py-2.5 text-xs font-semibold text-emerald-400 border-b-2 border-emerald-400';
+				refreshSheetsList();
+			}
+		}
+
+		function updateSaveSummary() {
+			const desa = document.getElementById('infoDesa').value || '-';
+			const thn = document.getElementById('infoTahun').value || '-';
+			const totalKeg = fieldsData.reduce((sum, f) => sum + f.kegiatan.length, 0);
+			const narasiCount = Object.keys(narratives).length;
+
+			document.getElementById('sumDesa').textContent = desa;
+			document.getElementById('sumTahun').textContent = thn;
+			document.getElementById('sumMode').textContent = reportMode;
+			document.getElementById('sumKegiatan').textContent = totalKeg + ' kegiatan';
+			document.getElementById('sumNarasi').textContent = narasiCount;
+		}
+
+		function collectAllData() {
+			return {
+				meta: {
+					desa: document.getElementById('infoDesa').value || '',
+					kecamatan: document.getElementById('infoKecamatan').value || '',
+					kabupaten: document.getElementById('infoKabupaten').value || '',
+					tahun: document.getElementById('infoTahun').value || '',
+					kades: document.getElementById('infoKades').value || '',
+					sekdes: document.getElementById('infoSekdes').value || '',
+					mode: reportMode,
+					savedAt: new Date().toISOString(),
+				},
+				bab1: {
+					latarBelakang: document.getElementById('bab1LatarBelakang').value || '',
+					dasarHukum: document.getElementById('bab1DasarHukum').value || '',
+					tujuan: document.getElementById('bab1Tujuan').value || '',
+					visiMisi: document.getElementById('bab1VisiMisi').value || '',
+					strategi: document.getElementById('bab1Strategi').value || '',
+				},
+				fieldsData: fieldsData,
+				narratives: narratives,
+			};
+		}
+
+		async function saveToSheets() {
+			if (!currentUser) {
+				Swal.fire('Error', 'Sesi login Anda telah berakhir. Silakan login ulang.', 'error');
+				return;
+			}
+			const btn = document.getElementById('btnDoSave');
+			const originalHTML = btn.innerHTML;
+			btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i> Menyimpan...';
+			btn.disabled = true;
+
+			// Tampilkan loading Swal
+			Swal.fire({
+				title: 'Menyimpan Data...',
+				text: 'Mohon tunggu sebentar, sedang menyimpan ke Google Sheets.',
+				allowOutsideClick: false,
+				didOpen: () => {
+					Swal.showLoading();
+				}
+			});
+
+			try {
+				const inputId = document.getElementById('sheetDocId').value.trim();
+				const docId = inputId || currentDocId || `LPPD-${Date.now()}`;
+				const payload = collectAllData();
+
+				const response = await fetch(GAS_URL, {
+					method: 'POST',
+					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+					body: JSON.stringify({
+						action: 'save',
+						token: ACCESS_TOKEN, 
+						role: currentUser.role,              
+						desa: currentUser.desa || '',	
+						meta: {
+							id: docId,
+							desa: payload.meta.desa,
+							tahun: payload.meta.tahun,
+							mode: payload.meta.mode,
+						},
+						payload: payload,
+					}),
+				});
+
+				const result = await response.json();
+				if (!result.ok) throw new Error(result.error || 'Gagal menyimpan');
+
+				currentDocId = result.id;
+				localStorage.setItem('lppd_current_id', currentDocId);
+				document.getElementById('sheetDocId').value = currentDocId;
+
+				updateGasStatus(true, `Tersimpan: ${result.id}`);
+				
+				// ✅ SweetAlert Sukses Simpan
+				Swal.fire({
+					icon: 'success',
+					title: 'Berhasil Disimpan!',
+					html: `Data LPPD/LKPPD berhasil disimpan ke Google Sheets.<br><br>
+						   <span class="text-sm bg-slate-100 p-2 rounded font-mono text-slate-700">ID: ${result.id}</span>`,
+					confirmButtonColor: '#10b981',
+					confirmButtonText: 'Oke, Mengerti',
+				});
+				
+			} catch (err) {
+				console.error(err);
+				updateGasStatus(false, err.message);
+				
+				// ❌ SweetAlert Gagal Simpan
+				Swal.fire({
+					icon: 'error',
+					title: 'Gagal Menyimpan',
+					text: err.message,
+					confirmButtonColor: '#ef4444'
+				});
+			} finally {
+				btn.innerHTML = originalHTML;
+				btn.disabled = false;
+			}
+		}
+
+		// Helper: Pastikan user sudah login sebelum fetch
+		function getAuthData() {
+			if (!currentUser) {
+				throw new Error('Sesi login tidak ditemukan. Silakan login ulang.');
+			}
+			return {
+				role: currentUser.role,
+				desa: currentUser.desa || ''
+			};
+		}
+
+		async function refreshSheetsList() {
+			const listEl = document.getElementById('sheetsList');
+			listEl.innerHTML = '<p class="text-xs text-slate-400 italic text-center py-6"><i class="fa-solid fa-spinner animate-spin"></i> Memuat daftar...</p>';
+
+			try {
+				const authData = getAuthData(); 
+				
+				// GUNAKAN POST AGAR PARAMETER ROLE TERKIRIM
+				const response = await fetch(GAS_URL, {
+					method: 'POST',
+					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+					body: JSON.stringify({
+						action: 'list',
+						token: ACCESS_TOKEN,
+						role: authData.role,
+						desa: authData.desa
+					})
+				});
+				
+				const result = await response.json();
+				if (!result.ok) throw new Error(result.error);
+				
+				const items = result.data || [];
+
+				if (items.length === 0) {
+					listEl.innerHTML = '<p class="text-xs text-slate-500 italic text-center py-6">Belum ada data tersimpan.</p>';
+					return;
+				}
+
+				listEl.innerHTML = items.map(item => `
+					<div class="bg-slate-900 rounded-xl p-3 border border-slate-700 flex items-center justify-between gap-3 hover:border-emerald-600/50 transition">
+						<div class="flex-1 min-w-0">
+							<div class="flex items-center gap-2">
+								<i class="fa-solid fa-file-lines text-emerald-400"></i>
+								<p class="font-semibold text-sm truncate">${escapeHtml(item.desa || 'Tanpa Nama')} (${escapeHtml(item.tahun || '-')})</p>
+								<span class="text-[9px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-1.5 py-0.5 rounded-full">${escapeHtml(item.mode || 'LPPD')}</span>
+							</div>
+							<p class="text-[10px] text-slate-500 mt-1">
+								<i class="fa-solid fa-fingerprint"></i> ${escapeHtml(item.id)} • 
+								<i class="fa-regular fa-clock"></i> ${formatDate(item.lastUpdated)}
+							</p>
+						</div>
+						<div class="flex items-center gap-1.5">
+							<button onclick="loadFromSheets('${escapeHtml(item.id)}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition flex items-center gap-1">
+								<i class="fa-solid fa-download"></i> Muat
+							</button>
+							<button onclick="deleteFromSheets('${escapeHtml(item.id)}')" class="px-2 py-1.5 rounded-lg bg-rose-700/60 hover:bg-rose-600 text-white text-xs transition" title="Hapus">
+								<i class="fa-solid fa-trash"></i>
+							</button>
+						</div>
+					</div>
+				`).join('');
+			} catch (err) {
+				console.error(err);
+				listEl.innerHTML = `<p class="text-xs text-rose-400 italic text-center py-6"><i class="fa-solid fa-circle-exclamation"></i> Gagal memuat: ${escapeHtml(err.message)}</p>`;
+			}
+		}
+
+		async function loadFromSheets(id) {
+			const confirm = await Swal.fire({
+				title: 'Muat Data?',
+				text: `Muat data "${id}"? Data yang sedang Anda kerjakan saat ini akan tertimpa.`,
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#10b981',
+				cancelButtonColor: '#64748b',
+				confirmButtonText: 'Ya, Muat Data',
+				cancelButtonText: 'Batal'
+			});
+
+			if (!confirm.isConfirmed) return;
+
+			Swal.fire({
+				title: 'Memuat Data...',
+				allowOutsideClick: false,
+				didOpen: () => { Swal.showLoading(); }
+			});
+
+			try {
+				const authData = getAuthData();
+				
+				// GUNAKAN POST JUGA UNTUK LOAD
+				const response = await fetch(GAS_URL, {
+					method: 'POST',
+					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+					body: JSON.stringify({
+						action: 'load',
+						token: ACCESS_TOKEN,
+						id: id,
+						role: authData.role,
+						desa: authData.desa
+					})
+				});
+				
+				const result = await response.json();
+				if (!result.ok) throw new Error(result.error);
+
+				applyLoadedData(result.data);
+				currentDocId = id;
+				localStorage.setItem('lppd_current_id', id);
+				document.getElementById('sheetDocId').value = id;
+
+				closeSheetsPanel();
+				
+				Swal.fire({
+					icon: 'success',
+					title: 'Data Berhasil Dimuat!',
+					text: `Dokumen dengan ID ${id} telah berhasil dimuat ke dalam editor.`,
+					confirmButtonColor: '#10b981'
+				});
+
+			} catch (err) {
+				console.error(err);
+				Swal.fire({
+					icon: 'error',
+					title: 'Gagal Memuat',
+					text: err.message,
+					confirmButtonColor: '#ef4444'
+				});
+			}
+		}
+
+		function applyLoadedData(data) {
+			const meta = data.meta || {};
+			const bab1 = data.bab1 || {};
+
+			// Identitas
+			document.getElementById('infoDesa').value = meta.desa || '';
+			document.getElementById('infoKecamatan').value = meta.kecamatan || '';
+			document.getElementById('infoKabupaten').value = meta.kabupaten || '';
+			document.getElementById('infoTahun').value = meta.tahun || '2025';
+			document.getElementById('infoKades').value = meta.kades || '';
+			document.getElementById('infoSekdes').value = meta.sekdes || '';
+
+			// BAB I
+			document.getElementById('bab1LatarBelakang').value = bab1.latarBelakang || '';
+			document.getElementById('bab1DasarHukum').value = bab1.dasarHukum || '';
+			document.getElementById('bab1Tujuan').value = bab1.tujuan || '';
+			document.getElementById('bab1VisiMisi').value = bab1.visiMisi || '';
+			document.getElementById('bab1Strategi').value = bab1.strategi || '';
+
+			// Fields & narratives
+			if (Array.isArray(data.fieldsData) && data.fieldsData.length === 5) {
+				fieldsData = data.fieldsData;
+			}
+			narratives = data.narratives || {};
+
+			// Switch mode jika berbeda
+			const loadedMode = meta.mode || 'LPPD';
+			if (loadedMode !== reportMode) {
+				switchReportMode(loadedMode);
+			}
+
+			// Re-render
+			renderFieldsForm();
+			updatePreviewHeader();
+			updateBab1Preview();
+			renderPreviewContent();
+			updateStats();
+		}
+
+		async function deleteFromSheets(id) {
+			const confirm = await Swal.fire({
+				title: 'Hapus Permanen?',
+				text: `Data "${id}" akan dihapus dari Google Sheets dan tidak dapat dikembalikan.`,
+				icon: 'warning',
+				showCancelButton: true,
+				confirmButtonColor: '#ef4444',
+				cancelButtonColor: '#64748b',
+				confirmButtonText: 'Ya, Hapus!',
+				cancelButtonText: 'Batal'
+			});
+
+			if (!confirm.isConfirmed) return;
+
+			try {
+				Swal.fire({
+					title: 'Menghapus...',
+					allowOutsideClick: false,
+					didOpen: () => { Swal.showLoading(); }
+				});
+
+				const res = await fetch(GAS_URL, {
+					method: 'POST',
+					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+					body: JSON.stringify({ action: 'delete', token: ACCESS_TOKEN, id }),
+				});
+				const result = await res.json();
+				if (!result.ok) throw new Error(result.error);
+
+				if (currentDocId === id) {
+					currentDocId = null;
+					localStorage.removeItem('lppd_current_id');
+				}
+				
+				Swal.fire({
+					icon: 'success',
+					title: 'Terhapus!',
+					text: 'Data berhasil dihapus dari Google Sheets.',
+					timer: 2000,
+					showConfirmButton: false
+				});
+				
+				refreshSheetsList();
+			} catch (err) {
+				Swal.fire({
+					icon: 'error',
+					title: 'Gagal Menghapus',
+					text: err.message,
+					confirmButtonColor: '#ef4444'
+				});
+			}
+		}
+
+		async function testGasConnection() {
+			updateGasStatus(null, 'Mengecek koneksi...');
+			try {
+				const url = `${GAS_URL}?action=ping&token=${encodeURIComponent(ACCESS_TOKEN)}&t=${Date.now()}`;
+				const res = await fetch(url);
+				const result = await res.json();
+				if (result.ok) {
+					updateGasStatus(true, `Terhubung (${result.model || 'OK'})`);
+				} else {
+					updateGasStatus(false, result.error || 'Response error');
+					console.error('[GAS Test]', result);
+				}
+			} catch (err) {
+				console.error('[GAS Test]', err);
+				updateGasStatus(false, 'Tidak dapat terhubung: ' + err.message);
+			}
+		}
+
+		function updateGasStatus(isOk, message) {
+			const dot = document.getElementById('gasStatusDot');
+			const text = document.getElementById('gasStatusText');
+			text.textContent = message;
+
+			if (isOk === true) {
+				dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+				text.className = 'text-emerald-400';
+			} else if (isOk === false) {
+				dot.className = 'w-2 h-2 rounded-full bg-rose-400';
+				text.className = 'text-rose-400';
+			} else {
+				dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+				text.className = 'text-amber-400';
+			}
+		}
+
+		function formatDate(iso) {
+			try {
+				return new Date(iso).toLocaleString('id-ID', {
+					day: '2-digit', month: 'short', year: 'numeric',
+					hour: '2-digit', minute: '2-digit'
+				});
+			} catch { return iso || '-'; }
+		}
+
+		// Auto-refresh summary saat input berubah
+		document.addEventListener('input', (e) => {
+			if (['infoDesa', 'infoTahun'].includes(e.target.id)) {
+				if (!document.getElementById('sheetsModal').classList.contains('hidden')) {
+					updateSaveSummary();
+				}
+			}
+		});
+
+    </script>
+</body>
+</html>
