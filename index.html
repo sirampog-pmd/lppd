@@ -72,47 +72,66 @@
 
         /* Print Media Styles - Precise targeting for A4 printing */
         @media print {
-            /* Sembunyikan seluruh UI luar secara total */
-            body * {
-                visibility: hidden !important;
-            }
+			#loginScreen,
+			header,
+			footer,
+			.no-print,
+			.dashboard-stats,
+			.form-editor-panel {
+				display: none !important;
+			}
+			html, body {
+				display: block !important;
+				height: auto !important;
+				min-height: 0 !important;
+				overflow: visible !important;
+				background: #ffffff !important;
+				margin: 0 !important;
+				padding: 0 !important;
+			}
+			main,
+			main > div,
+			main > div > div {
+				display: block !important;
+				position: static !important;
+				width: 100% !important;
+				max-width: 100% !important;
+				margin: 0 !important;
+				padding: 0 !important;
+				overflow: visible !important;
+			}
+			#printableArea {
+				display: block !important;
+				position: static !important;
+				width: 100% !important;
+				max-width: 100% !important;
+				max-height: none !important;
+				height: auto !important;
+				overflow: visible !important;
+				margin: 0 !important;
+				padding: 0 !important;
+				box-shadow: none !important;
+				border: none !important;
+				background: #ffffff !important;
+				color: #000000 !important;
+			}
 
-            /* Tampilkan HANYA area dokumen resmi */
-            #printableArea, #printableArea * {
-                visibility: visible !important;
-            }
+			/* Mencegah pemotongan baris tabel dan judul bagian */
+			tr {
+				break-inside: avoid;
+				page-break-inside: avoid;
+			}
 
-            /* Posisi area cetak persis di pojok kiri atas halaman */
-            #printableArea {
-                position: absolute !important;
-                left: 0 !important;
-                top: 0 !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-                background: #ffffff !important;
-                color: #000000 !important;
-                max-height: none !important;
-                overflow: visible !important;
-            }
+			h4, h5, .page-section-header {
+				break-after: avoid;
+				page-break-after: avoid;
+			}
 
-            /* Mencegah pemotongan tabel di tengah baris */
-            tr {
-                page-break-inside: avoid !important;
-            }
-
-            h4, .page-section-header {
-                page-break-after: avoid !important;
-            }
-
-            @page {
-                size: A4 portrait;
-                margin: 15mm;
-            }
-        }
+			@page {
+				size: A4 portrait;
+				margin: 15mm;
+			}
+		}
 
         /* Loading Shimmer effect */
         .shimmer {
@@ -419,12 +438,23 @@
                 <div id="printableArea" class="preview-container bg-white text-slate-900 rounded-2xl shadow-2xl p-6 sm:p-8 text-xs font-serif leading-relaxed border border-slate-200 max-h-[80vh] overflow-y-auto">
                     
                     <!-- Kop Surat Desa -->
-                    <div id="previewKop" class="border-b-4 border-double border-slate-900 pb-4 mb-6 text-center">
-                        <h4 class="font-sans font-bold text-sm tracking-wider uppercase">PEMERINTAH KABUPATEN <span id="prevKabupaten">BREBES</span></h4>
-                        <h4 class="font-sans font-bold text-sm tracking-wider uppercase">KECAMATAN <span id="prevKecamatan">SIRAMPOG</span></h4>
-                        <h3 class="font-sans font-extrabold text-lg tracking-widest uppercase text-indigo-950 mt-0.5">PEMERINTAH DESA <span id="prevDesa">KALIGIRI</span></h3>
-                        <p class="font-sans text-[10px] text-slate-600 italic mt-1">Kantor Kepala Desa <span id="prevDesaSub">Kaligiri</span>, Jln. Raya Utama Desa No. 01 Kode Pos 52272</p>
-                    </div>
+                    <div id="previewKop" class="border-b-4 border-double border-slate-900 pb-4 mb-6 flex items-center gap-4">
+						<!-- Bagian Logo (Kiri) -->
+						<div class="shrink-0">
+							<img id="prevLogo" src="logobrebesbw.jpg" alt="Logo Desa" class="w-16 h-20 object-contain">
+						</div>
+
+						<!-- Bagian Teks Kop Surat (Tengah) -->
+						<div class="flex-1 text-center">
+							<h4 class="font-sans font-bold text-sm tracking-wider uppercase">PEMERINTAH KABUPATEN <span id="prevKabupaten">BREBES</span></h4>
+							<h4 class="font-sans font-bold text-sm tracking-wider uppercase">KECAMATAN <span id="prevKecamatan">SIRAMPOG</span></h4>
+							<h3 class="font-sans font-extrabold text-lg tracking-widest uppercase text-indigo-950 mt-0.5">PEMERINTAH DESA <span id="prevDesa">KALIGIRI</span></h3>
+							<p class="font-sans text-[10px] text-slate-600 italic mt-1">Kantor Kepala Desa <span id="prevDesaSub">Kaligiri</span>, Jln. Raya Utama Desa No. 01 Kode Pos 52272</p>
+						</div>
+
+						<!-- Penyeimbang Kanan (Opsional: agar teks benar-benar simetris di tengah kertas) -->
+						<div class="w-16 shrink-0 hidden sm:block"></div>
+					</div>
 
                     <!-- Judul Laporan -->
                     <div class="text-center mb-6">
