@@ -316,7 +316,7 @@
                         </div>
                         <div>
                             <label class="block text-slate-300 font-medium mb-1">Tahun Anggaran</label>
-                            <input type="number" id="infoTahun" value="2025" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
+                            <input type="number" id="infoTahun" value="2026" oninput="updatePreviewHeader(); updateBab1Preview();" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500 transition">
                         </div>
                         <div>
                             <label class="block text-slate-300 font-medium mb-1">Nama Kepala Desa</label>
@@ -462,7 +462,7 @@
                             LAPORAN PENYELENGGARAAN PEMERINTAHAN DESA (LPPD)
                         </h2>
                         <p class="font-sans font-medium text-xs text-slate-700 mt-1">
-                            TAHUN ANGGARAN <span id="prevTahun">2025</span>
+                            TAHUN ANGGARAN <span id="prevTahun">2026</span>
                         </p>
                     </div>
 
@@ -533,7 +533,7 @@ Misi:
                                 <p id="prevSekdesName" class="font-bold underline text-slate-900">( Sekdes )</p>
                             </div>
                             <div class="text-center text-[10pt]">
-                                <p><span id="prevKabTTD">Brebes</span>, 31 Desember <span id="prevTahunTTD">2025</span></p>
+                                <p><span id="prevKabTTD">Brebes</span>, 31 Desember <span id="prevTahunTTD">2026</span></p>
                                 <p class="font-semibold">Kepala Desa <span id="prevDesaTTD2">Kaligiri</span></p>
                                 <div class="h-16"></div>
                                 <p id="prevKadesName" class="font-bold underline text-slate-900">( Nama Kepala Desa )</p>
@@ -806,7 +806,7 @@ Misi:
             const desa = document.getElementById('infoDesa').value || 'Kaligiri';
             const kec = document.getElementById('infoKecamatan').value || 'Sirampog';
             const kab = document.getElementById('infoKabupaten').value || 'Brebes';
-            const thn = document.getElementById('infoTahun').value || '2025';
+            const thn = document.getElementById('infoTahun').value || '2026';
 
             const latar = document.getElementById('bab1LatarBelakang').value || 
                 `Penyelenggaraan Pemerintahan Desa ${desa} Kecamatan ${kec} Kabupaten ${kab} merupakan sub-sistem dari penyelenggaraan pemerintahan daerah dan nasional. Laporan ini disusun sebagai wujud akuntabilitas atas pelaksanaan APBDesa Tahun Anggaran ${thn}.`;
@@ -834,7 +834,7 @@ Misi:
             const desa = document.getElementById('infoDesa').value || 'Kaligiri';
             const kec = document.getElementById('infoKecamatan').value || 'Sirampog';
             const kab = document.getElementById('infoKabupaten').value || 'Brebes';
-            const thn = document.getElementById('infoTahun').value || '2025';
+            const thn = document.getElementById('infoTahun').value || '2026';
 
             showToast('AI sedang merangkai BAB I PENDAHULUAN...', 'info');
 
@@ -871,7 +871,7 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
 			const desa = document.getElementById('infoDesa').value || 'Kaligiri';
 			const kec = document.getElementById('infoKecamatan').value || 'Sirampog';
 			const kab = document.getElementById('infoKabupaten').value || 'Brebes';
-			const thn = document.getElementById('infoTahun').value || '2025';
+			const thn = document.getElementById('infoTahun').value || '2026';
 
 			// Tentukan target elemen berdasarkan tipe
 			let targetId = '';
@@ -1253,7 +1253,7 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
             `;
 
             const desa = document.getElementById('infoDesa').value || 'Desa Kaligiri';
-            const tahun = document.getElementById('infoTahun').value || '2025';
+            const tahun = document.getElementById('infoTahun').value || '2026';
 
             let prompt = `Buatkan narasi uraian laporan untuk ${reportMode} (${reportMode === 'LPPD' ? 'Laporan ke Bupati/Camat' : 'Laporan Pertanggungjawaban ke BPD'}) ${field.title} Pemerintah ${desa} Tahun Anggaran ${tahun}.\n\nData Kegiatan:\n`;
 
@@ -1310,13 +1310,13 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
             document.getElementById('infoDesa').value = "Kaligiri";
             document.getElementById('infoKecamatan').value = "Sirampog";
             document.getElementById('infoKabupaten').value = "Brebes";
-            document.getElementById('infoTahun').value = "2025";
-            document.getElementById('infoKades').value = "H. WARTO, S.E.";
-            document.getElementById('infoSekdes').value = "AEP SAEPUDIN, S.IP";
+            document.getElementById('infoTahun').value = "2026";
+            document.getElementById('infoKades').value = "ROSIDIN";
+            document.getElementById('infoSekdes').value = "KALIMI";
 
-            document.getElementById('bab1LatarBelakang').value = "Penyelenggaraan Pemerintahan Desa Kaligiri Kecamatan Sirampog Kabupaten Brebes merupakan bagian integral dari sistem tata kelola daerah. Laporan ini disusun sesuai amanat Permendagri No. 46 Tahun 2016 sebagai bentuk laporan akuntabilitas penyelenggaraan pemerintahan desa, pelaksanaan pembangunan, pembinaan, dan pemberdayaan masyarakat Tahun Anggaran 2025.";
+            document.getElementById('bab1LatarBelakang').value = "Penyelenggaraan Pemerintahan Desa Kaligiri Kecamatan Sirampog Kabupaten Brebes merupakan bagian integral dari sistem tata kelola daerah. Laporan ini disusun sesuai amanat Permendagri No. 46 Tahun 2016 sebagai bentuk laporan akuntabilitas penyelenggaraan pemerintahan desa, pelaksanaan pembangunan, pembinaan, dan pemberdayaan masyarakat Tahun Anggaran 2026.";
             document.getElementById('bab1DasarHukum').value = defaultDasarHukumText;
-            document.getElementById('bab1Tujuan').value = "1. Memberikan gambaran transparan pelaksanaan APBDesa TA 2025.\n2. Sebagai tolok ukur kinerja Kepala Desa dan perangkat desa.\n3. Menyediakan bahan evaluasi bagi Bupati Brebes melalui Camat Sirampog serta pengawasan oleh BPD Desa Kaligiri.";
+            document.getElementById('bab1Tujuan').value = "1. Memberikan gambaran transparan pelaksanaan APBDesa TA 2026.\n2. Sebagai tolok ukur kinerja Kepala Desa dan perangkat desa.\n3. Menyediakan bahan evaluasi bagi Bupati Brebes melalui Camat Sirampog serta pengawasan oleh BPD Desa Kaligiri.";
             document.getElementById('bab1VisiMisi').value = "Visi:\n\"Terwujudnya Desa Kaligiri yang Mandiri, Sejahtera, Transparan, dan Religius.\"\n\nMisi:\n1. Mewujudkan birokrasi Pemdes yang responsif dan berorientasi melayani.\n2. Peningkatan kualitas sarana prasarana fisik dan ekonomi warga.\n3. Penguatan mitigasi bencana dan perlindungan sosial masyarakat.";
             document.getElementById('bab1Strategi').value = "1. Pengalokasian dana desa berfokus pada pemulihan ekonomi dan pembangunan sarana produktif.\n2. Optimalisasi sinergi kelembagaan desa (BPD, RT/RW, Karang Taruna, PKK).\n3. Penerapan transparansi anggaran publikasi di setiap dusun.";
 
@@ -1465,12 +1465,10 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
 			modal.classList.remove('hidden');
 			document.body.style.overflow = 'hidden';
 
-			// Pre-fill ID jika sudah pernah save
 			if (currentDocId) {
 				document.getElementById('sheetDocId').value = currentDocId;
 			}
 
-			// Update summary
 			updateSaveSummary();
 			testGasConnection();
 			switchSheetsTab('save');
@@ -1641,8 +1639,6 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
 
 			try {
 				const authData = getAuthData(); 
-				
-				// GUNAKAN POST AGAR PARAMETER ROLE TERKIRIM
 				const response = await fetch(GAS_URL, {
 					method: 'POST',
 					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1716,7 +1712,6 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
 			try {
 				const authData = getAuthData();
 				
-				// GUNAKAN POST JUGA UNTUK LOAD
 				const response = await fetch(GAS_URL, {
 					method: 'POST',
 					headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -1765,7 +1760,7 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
 			document.getElementById('infoDesa').value = meta.desa || '';
 			document.getElementById('infoKecamatan').value = meta.kecamatan || '';
 			document.getElementById('infoKabupaten').value = meta.kabupaten || '';
-			document.getElementById('infoTahun').value = meta.tahun || '2025';
+			document.getElementById('infoTahun').value = meta.tahun || '2026';
 			document.getElementById('infoKades').value = meta.kades || '';
 			document.getElementById('infoSekdes').value = meta.sekdes || '';
 
