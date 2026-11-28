@@ -15,6 +15,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- SweetAlert2 CSS & JS -->
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+	<!-- SheetJS untuk Import Excel -->
+	<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -400,7 +402,7 @@
         <div class="ayat-arab">فَسَبِّحْ بِٱسْمِ رَبِّكَ ٱلْعَظِيمِ</div>
         <div class="ayat-latin"><em>'Maka bertasbihlah dengan menyebut nama Rabbmu yang Maha Agung.'</em></div>
         <h1 class="splash-title">Smart LPPD</h1>
-        <p class="splash-subtitle">Smart • Modern • Elegant</p>
+        <p class="splash-subtitle">Secure • Modern • Elegant</p>
         <div class="splash-progress-container"><div class="splash-progress-bar"></div></div>
         <div class="splash-loading-text">Memuat Aplikasi</div>
         <br>
@@ -674,6 +676,220 @@
 						
                     </div>
                 </div>
+				
+				<!-- Section 2.5: Profil Desa -->
+				<div class="bg-slate-800/90 rounded-2xl border border-slate-700/80 p-5 shadow-xl text-white">
+					<div class="flex items-center justify-between border-b border-slate-700/60 pb-3 mb-4">
+						<div>
+							<h3 class="font-bold text-sm text-teal-400 flex items-center gap-2">
+								<i class="fa-solid fa-address-card"></i> 3. Profil Desa (Data Dukung Laporan)
+							</h3>
+							<p class="text-[11px] text-slate-400 mt-0.5">Data statistik & kelembagaan desa</p>
+						</div>
+						<div class="flex items-center gap-2">
+							<input type="file" id="excelProfilInput" accept=".xlsx,.xls,.csv" class="hidden" onchange="importProfilExcel(event)">
+							<button onclick="document.getElementById('excelProfilInput').click()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md transition flex items-center gap-1.5">
+								<i class="fa-solid fa-file-excel"></i> Import Excel
+							</button>
+							<button onclick="downloadTemplateProfil()" class="px-3 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5">
+								<i class="fa-solid fa-download"></i> Template
+							</button>
+						</div>
+					</div>
+
+					<!-- Sub-tab Navigasi -->
+					<div class="flex flex-wrap gap-1 mb-4 bg-slate-900 p-1 rounded-xl border border-slate-700">
+						<button onclick="switchProfilTab('umum')" id="ptabUmum" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-teal-600 text-white">A. Umum</button>
+						<button onclick="switchProfilTab('demografi')" id="ptabDemografi" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">B. Demografi</button>
+						<button onclick="switchProfilTab('tanah')" id="ptabTanah" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">C. Tata Guna Lahan</button>
+						<button onclick="switchProfilTab('pemdes')" id="ptabPemdes" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">D. Manajemen Pemdes</button>
+						<button onclick="switchProfilTab('kamtibmas')" id="ptabKamtibmas" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">E. Ketentraman</button>
+						<button onclick="switchProfilTab('lembaga')" id="ptabLembaga" class="px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white">F. Kelembagaan</button>
+					</div>
+
+					<!-- PANEL A: UMUM -->
+					<div id="ppanelUmum" class="profil-panel flex flex-col gap-3">
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Total Penduduk (Jiwa)</label>
+								<input type="number" id="pfTotalPenduduk" value="4869" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Kepala Keluarga (KK)</label>
+								<input type="number" id="pfTotalKK" value="1569" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Luas Wilayah (Hektar)</label>
+								<input type="number" id="pfLuasWilayah" value="276" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Perdes</label>
+								<input type="number" id="pfJmlPerdes" value="7" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Perkades</label>
+								<input type="number" id="pfJmlPerkades" value="4" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Kepkades</label>
+								<input type="number" id="pfJmlKepkades" value="31" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Aparatur Pemdes</label>
+								<input type="number" id="pfJmlAparatur" value="12" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Anggota BPD</label>
+								<input type="number" id="pfJmlBPD" value="5" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Anggota LPMD</label>
+								<input type="number" id="pfJmlLPMD" value="6" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+						</div>
+					</div>
+
+					<!-- PANEL B: DEMOGRAFI -->
+					<div id="ppanelDemografi" class="profil-panel hidden flex-col gap-3">
+						<div class="grid grid-cols-2 gap-3 text-xs">
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Laki-laki (Jiwa)</label>
+								<input type="number" id="pfLaki" value="2478" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Perempuan (Jiwa)</label>
+								<input type="number" id="pfPerempuan" value="2391" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+						</div>
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+							<div>
+								<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Kelompok Usia</label>
+								<textarea id="pfKelompokUsia" rows="8" oninput="updateProfilPreview()" placeholder="0-4: 274&#10;5-9: 438&#10;..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:border-teal-500 outline-none font-mono">0 - 4 Thn: 274
+				5 - 9 Thn: 438
+				10 - 14 Thn: 451
+				15 - 19 Thn: 362
+				20 - 24 Thn: 355
+				25 - 29 Thn: 451
+				30 - 34 Thn: 414
+				35 - 39 Thn: 384</textarea>
+							</div>
+							<div>
+								<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Tingkat Pendidikan</label>
+								<textarea id="pfPendidikan" rows="8" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:border-teal-500 outline-none font-mono">Tidak/Belum Sekolah: 993
+				Belum Tamat SD: 392
+				Tamat SD: 1004
+				Tamat SMP: 1161
+				Tamat SMA: 1129
+				Diploma I/II: 18
+				S1: 133
+				S2: 9</textarea>
+							</div>
+							<div>
+								<label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Mata Pencaharian</label>
+								<textarea id="pfPekerjaan" rows="8" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-xs text-slate-200 focus:border-teal-500 outline-none font-mono">Petani: 1851
+				Karyawan Swasta: 1104
+				Buruh: 992
+				Guru Non-PNS: 55
+				Tenaga Tukang: 30
+				PNS/Pensiunan/TNI/Polri: 12
+				Perangkat Desa: 10
+				Lainnya: 815</textarea>
+							</div>
+						</div>
+					</div>
+
+					<!-- PANEL C: TANAH -->
+					<div id="ppanelTanah" class="profil-panel hidden flex-col gap-3">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Status Sertifikasi (%)</label>
+								<input type="number" id="pfSertifikasi" value="80" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Tanah Kas Desa (Ha)</label>
+								<input type="number" step="0.01" id="pfTanahKas" value="1.51" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Persawahan (Ha)</label>
+								<input type="number" step="0.01" id="pfSawah" value="200.56" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Pekarangan/Pemukiman (Ha)</label>
+								<input type="number" step="0.01" id="pfPekarangan" value="69.21" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jalan (Ha)</label>
+								<input type="number" step="0.01" id="pfJalan" value="3.75" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Bangunan Umum (Ha)</label>
+								<input type="number" step="0.01" id="pfBangunanUmum" value="0" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+						</div>
+					</div>
+
+					<!-- PANEL D: MANAJEMEN PEMDES -->
+					<div id="ppanelPemdes" class="profil-panel hidden flex-col gap-3">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Kasi</label>
+								<input type="number" id="pfKasi" value="3" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Kaur</label>
+								<input type="number" id="pfKaur" value="3" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Jumlah Kasun</label>
+								<input type="number" id="pfKasun" value="3" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Tenaga Bantu Administrasi</label>
+								<input type="number" id="pfTBA" value="1" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Musrenbangdes (Kali/Tahun)</label>
+								<input type="number" id="pfMusrenbang" value="1" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+						</div>
+					</div>
+
+					<!-- PANEL E: KETENTRAMAN -->
+					<div id="ppanelKamtibmas" class="profil-panel hidden flex-col gap-3">
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Anggota Linmas (Orang)</label>
+								<input type="number" id="pfLinmas" value="30" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Pos Kamling (Unit)</label>
+								<input type="number" id="pfPoskamling" value="4" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Kegiatan Pembinaan (Kali)</label>
+								<input type="number" id="pfPembinaan" value="2" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Kejadian Kriminal (Kasus)</label>
+								<input type="number" id="pfKriminal" value="0" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Bencana Alam (Kali)</label>
+								<input type="number" id="pfBencana" value="0" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+							<div>
+								<label class="block text-slate-300 font-medium mb-1">Kecelakaan Remaja (Kasus)</label>
+								<input type="number" id="pfKecelakaan" value="0" oninput="updateProfilPreview()" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:border-teal-500 outline-none">
+							</div>
+						</div>
+					</div>
+
+					<!-- PANEL F: LEMBAGA -->
+					<div id="ppanelLembaga" class="profil-panel hidden flex-col gap-3">
+						<p class="text-[11px] text-slate-400 italic mb-1">Checklist lembaga kemasyarakatan yang aktif di desa:</p>
+						<div id="pfLembagaContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs"></div>
+					</div>
+				</div>
 
                 <!-- Section 3: Form Dynamic Bidang Permendagri 46/2016 -->
                 <div class="bg-slate-800/90 rounded-2xl border border-slate-700/80 p-5 shadow-xl text-white">
@@ -799,6 +1015,9 @@ Misi:
                             </div>
                         </div>
                     </div>
+					
+					<!-- BAB II PROFIL DESA (Populated via JS) -->
+					<div id="previewProfilDesa" class="mb-6 text-justify"></div>
 
                     <!-- Content Per Bidang (Populated Dynamically) -->
                     <div id="previewContentBidang" class="flex flex-col gap-6">
@@ -1692,6 +1911,7 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
             updateBab1Preview();
             renderPreviewContent();
             updateStats();
+			updateProfilPreview();
             showToast('Data sampel & BAB I berhasil dimuat!', 'success');
         }
 
@@ -2212,6 +2432,388 @@ Sediakan respon dalam format JSON (hanya JSON murni tanpa markdown wrapper) deng
 				}
 			}
 		});
+
+	/* ============================================================
+	   PROFIL DESA MODULE
+	   ============================================================ */
+	const LEMBAGA_LIST = ['RT/RW','PKK','Karang Taruna','Posyandu','LPMD','BUMDesa','Kelompok Tani','Kelompok Ternak','HIPPA','Linmas PA & PI','Lembaga Kebudayaan','Lembaga Pendidikan'];
+	let profilLembagaAktif = [...LEMBAGA_LIST]; // default semua aktif
+
+	function initProfilLembagaCheckboxes() {
+		const c = document.getElementById('pfLembagaContainer');
+		if (!c) return;
+		c.innerHTML = LEMBAGA_LIST.map(l => `
+			<label class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 cursor-pointer hover:border-teal-500/50 transition">
+				<input type="checkbox" class="lembaga-check accent-teal-500" value="${l}" ${profilLembagaAktif.includes(l)?'checked':''} onchange="updateProfilPreview()">
+				<span class="text-slate-200 text-[11px]">${l}</span>
+			</label>
+		`).join('');
+	}
+
+	function switchProfilTab(tab) {
+		document.querySelectorAll('.profil-panel').forEach(p => { p.classList.add('hidden'); p.classList.remove('flex'); });
+		const target = document.getElementById('ppanel' + tab.charAt(0).toUpperCase() + tab.slice(1));
+		if (target) { target.classList.remove('hidden'); target.classList.add('flex'); }
+
+		['umum','demografi','tanah','pemdes','kamtibmas','lembaga'].forEach(t => {
+			const btn = document.getElementById('ptab' + t.charAt(0).toUpperCase() + t.slice(1));
+			if (btn) {
+				if (t === tab) btn.className = 'px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-teal-600 text-white';
+				else btn.className = 'px-3 py-1.5 rounded-lg text-[11px] font-semibold text-slate-400 hover:text-white';
+			}
+		});
+	}
+
+	function collectProfilData() {
+		const lembaga = Array.from(document.querySelectorAll('.lembaga-check:checked')).map(c => c.value);
+		return {
+			totalPenduduk: +document.getElementById('pfTotalPenduduk').value || 0,
+			totalKK: +document.getElementById('pfTotalKK').value || 0,
+			luasWilayah: +document.getElementById('pfLuasWilayah').value || 0,
+			jmlPerdes: +document.getElementById('pfJmlPerdes').value || 0,
+			jmlPerkades: +document.getElementById('pfJmlPerkades').value || 0,
+			jmlKepkades: +document.getElementById('pfJmlKepkades').value || 0,
+			jmlAparatur: +document.getElementById('pfJmlAparatur').value || 0,
+			jmlBPD: +document.getElementById('pfJmlBPD').value || 0,
+			jmlLPMD: +document.getElementById('pfJmlLPMD').value || 0,
+			laki: +document.getElementById('pfLaki').value || 0,
+			perempuan: +document.getElementById('pfPerempuan').value || 0,
+			kelompokUsia: document.getElementById('pfKelompokUsia').value,
+			pendidikan: document.getElementById('pfPendidikan').value,
+			pekerjaan: document.getElementById('pfPekerjaan').value,
+			sertifikasi: +document.getElementById('pfSertifikasi').value || 0,
+			tanahKas: +document.getElementById('pfTanahKas').value || 0,
+			sawah: +document.getElementById('pfSawah').value || 0,
+			pekarangan: +document.getElementById('pfPekarangan').value || 0,
+			jalan: +document.getElementById('pfJalan').value || 0,
+			bangunanUmum: +document.getElementById('pfBangunanUmum').value || 0,
+			kasi: +document.getElementById('pfKasi').value || 0,
+			kaur: +document.getElementById('pfKaur').value || 0,
+			kasun: +document.getElementById('pfKasun').value || 0,
+			tba: +document.getElementById('pfTBA').value || 0,
+			musrenbang: +document.getElementById('pfMusrenbang').value || 0,
+			linmas: +document.getElementById('pfLinmas').value || 0,
+			poskamling: +document.getElementById('pfPoskamling').value || 0,
+			pembinaan: +document.getElementById('pfPembinaan').value || 0,
+			kriminal: +document.getElementById('pfKriminal').value || 0,
+			bencana: +document.getElementById('pfBencana').value || 0,
+			kecelakaan: +document.getElementById('pfKecelakaan').value || 0,
+			lembaga: lembaga,
+		};
+	}
+
+	function applyProfilData(d) {
+		if (!d) return;
+		document.getElementById('pfTotalPenduduk').value = d.totalPenduduk ?? '';
+		document.getElementById('pfTotalKK').value = d.totalKK ?? '';
+		document.getElementById('pfLuasWilayah').value = d.luasWilayah ?? '';
+		document.getElementById('pfJmlPerdes').value = d.jmlPerdes ?? '';
+		document.getElementById('pfJmlPerkades').value = d.jmlPerkades ?? '';
+		document.getElementById('pfJmlKepkades').value = d.jmlKepkades ?? '';
+		document.getElementById('pfJmlAparatur').value = d.jmlAparatur ?? '';
+		document.getElementById('pfJmlBPD').value = d.jmlBPD ?? '';
+		document.getElementById('pfJmlLPMD').value = d.jmlLPMD ?? '';
+		document.getElementById('pfLaki').value = d.laki ?? '';
+		document.getElementById('pfPerempuan').value = d.perempuan ?? '';
+		if (d.kelompokUsia) document.getElementById('pfKelompokUsia').value = d.kelompokUsia;
+		if (d.pendidikan) document.getElementById('pfPendidikan').value = d.pendidikan;
+		if (d.pekerjaan) document.getElementById('pfPekerjaan').value = d.pekerjaan;
+		document.getElementById('pfSertifikasi').value = d.sertifikasi ?? '';
+		document.getElementById('pfTanahKas').value = d.tanahKas ?? '';
+		document.getElementById('pfSawah').value = d.sawah ?? '';
+		document.getElementById('pfPekarangan').value = d.pekarangan ?? '';
+		document.getElementById('pfJalan').value = d.jalan ?? '';
+		document.getElementById('pfBangunanUmum').value = d.bangunanUmum ?? '';
+		document.getElementById('pfKasi').value = d.kasi ?? '';
+		document.getElementById('pfKaur').value = d.kaur ?? '';
+		document.getElementById('pfKasun').value = d.kasun ?? '';
+		document.getElementById('pfTBA').value = d.tba ?? '';
+		document.getElementById('pfMusrenbang').value = d.musrenbang ?? '';
+		document.getElementById('pfLinmas').value = d.linmas ?? '';
+		document.getElementById('pfPoskamling').value = d.poskamling ?? '';
+		document.getElementById('pfPembinaan').value = d.pembinaan ?? '';
+		document.getElementById('pfKriminal').value = d.kriminal ?? '';
+		document.getElementById('pfBencana').value = d.bencana ?? '';
+		document.getElementById('pfKecelakaan').value = d.kecelakaan ?? '';
+		profilLembagaAktif = Array.isArray(d.lembaga) ? d.lembaga : [...LEMBAGA_LIST];
+		initProfilLembagaCheckboxes();
+		updateProfilPreview();
+	}
+
+	function parseLines(text) {
+		if (!text) return [];
+		return text.split('\n').map(l => l.trim()).filter(l => l && l.includes(':')).map(l => {
+			const idx = l.lastIndexOf(':');
+			const label = l.substring(0, idx).trim();
+			const val = l.substring(idx + 1).trim();
+			return { label, val };
+		});
+	}
+
+	function updateProfilPreview() {
+		const container = document.getElementById('previewProfilDesa');
+		if (!container) return;
+		const d = collectProfilData();
+		const totalGender = (d.laki + d.perempuan) || 1;
+		const pctL = ((d.laki / totalGender) * 100).toFixed(1);
+		const pctP = ((d.perempuan / totalGender) * 100).toFixed(1);
+
+		const umur = parseLines(d.kelompokUsia);
+		const pend = parseLines(d.pendidikan);
+		const kerj = parseLines(d.pekerjaan);
+		const maxLen = Math.max(umur.length, pend.length, kerj.length);
+
+		let rowsHtml = '';
+		for (let i = 0; i < maxLen; i++) {
+			rowsHtml += `<tr>
+				<td class="border border-slate-300 px-2 py-0.5">${umur[i] ? escapeHtml(umur[i].label) : '-'}</td>
+				<td class="border border-slate-300 px-2 py-0.5 text-right font-mono">${umur[i] ? escapeHtml(umur[i].val) : '-'}</td>
+				<td class="border border-slate-300 px-2 py-0.5">${pend[i] ? escapeHtml(pend[i].label) : '-'}</td>
+				<td class="border border-slate-300 px-2 py-0.5 text-right font-mono">${pend[i] ? escapeHtml(pend[i].val) : '-'}</td>
+				<td class="border border-slate-300 px-2 py-0.5">${kerj[i] ? escapeHtml(kerj[i].label) : '-'}</td>
+				<td class="border border-slate-300 px-2 py-0.5 text-right font-mono">${kerj[i] ? escapeHtml(kerj[i].val) : '-'}</td>
+			</tr>`;
+		}
+
+		container.innerHTML = `
+			<h4 class="page-section-header font-sans font-bold text-xs uppercase mb-3 border-b border-slate-300 pb-0.5 text-indigo-950">
+				BAB II PROFIL DESA
+			</h4>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.1 Kondisi Umum Desa</h5>
+				<table class="w-full border-collapse border border-slate-300 text-[10pt] font-sans mb-2">
+					<tbody>
+						<tr><td class="border border-slate-300 px-2 py-1 w-1/2">Total Penduduk</td><td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(d.totalPenduduk)} Jiwa</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Jumlah Kepala Keluarga</td><td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(d.totalKK)} KK</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Luas Wilayah</td><td class="border border-slate-300 px-2 py-1 text-right font-mono">${formatRupiahSimple(d.luasWilayah)} Hektar</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Jumlah Aparatur Pemdes</td><td class="border border-slate-300 px-2 py-1 text-right font-mono">${d.jmlAparatur} Orang</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.2 Produk Hukum Desa</h5>
+				<table class="w-full border-collapse border border-slate-300 text-[10pt] font-sans">
+					<tbody>
+						<tr><td class="border border-slate-300 px-2 py-1">Peraturan Desa (Perdes)</td><td class="border border-slate-300 px-2 py-1 text-right">${d.jmlPerdes} Dokumen</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Peraturan Kepala Desa (Perkades)</td><td class="border border-slate-300 px-2 py-1 text-right">${d.jmlPerkades} Dokumen</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Keputusan Kepala Desa (Kepkades)</td><td class="border border-slate-300 px-2 py-1 text-right">${d.jmlKepkades} Dokumen</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.3 Demografi & Kependudukan</h5>
+				<p class="text-[10pt] mb-2 font-sans">Komposisi penduduk berdasarkan jenis kelamin: <strong>Laki-laki ${formatRupiahSimple(d.laki)} Jiwa (${pctL}%)</strong> dan <strong>Perempuan ${formatRupiahSimple(d.perempuan)} Jiwa (${pctP}%)</strong>.</p>
+				<table class="w-full border-collapse border border-slate-300 text-[9.5pt] font-sans">
+					<thead>
+						<tr class="bg-slate-100 font-bold text-center">
+							<th class="border border-slate-300 px-2 py-1">Kelompok Usia</th>
+							<th class="border border-slate-300 px-2 py-1 w-20">Jiwa</th>
+							<th class="border border-slate-300 px-2 py-1">Pendidikan</th>
+							<th class="border border-slate-300 px-2 py-1 w-20">Jiwa</th>
+							<th class="border border-slate-300 px-2 py-1">Pekerjaan</th>
+							<th class="border border-slate-300 px-2 py-1 w-20">Jiwa</th>
+						</tr>
+					</thead>
+					<tbody>${rowsHtml}</tbody>
+				</table>
+			</div>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.4 Tata Guna Lahan & Pertanahan</h5>
+				<table class="w-full border-collapse border border-slate-300 text-[10pt] font-sans">
+					<tbody>
+						<tr><td class="border border-slate-300 px-2 py-1">Status Sertifikasi Tanah</td><td class="border border-slate-300 px-2 py-1 text-right">${d.sertifikasi}%</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Tanah Kas Desa</td><td class="border border-slate-300 px-2 py-1 text-right">${d.tanahKas} Ha</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Persawahan</td><td class="border border-slate-300 px-2 py-1 text-right">${d.sawah} Ha</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Pekarangan/Pemukiman</td><td class="border border-slate-300 px-2 py-1 text-right">${d.pekarangan} Ha</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Jalan</td><td class="border border-slate-300 px-2 py-1 text-right">${d.jalan} Ha</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Bangunan Umum</td><td class="border border-slate-300 px-2 py-1 text-right">${d.bangunanUmum} Ha</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.5 Manajemen Pemerintahan Desa</h5>
+				<table class="w-full border-collapse border border-slate-300 text-[10pt] font-sans">
+					<tbody>
+						<tr><td class="border border-slate-300 px-2 py-1">Kepala Desa & Sekdes</td><td class="border border-slate-300 px-2 py-1 text-right">2 Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Kepala Seksi (Kasi)</td><td class="border border-slate-300 px-2 py-1 text-right">${d.kasi} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Kepala Urusan (Kaur)</td><td class="border border-slate-300 px-2 py-1 text-right">${d.kaur} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Kepala Dusun (Kasun)</td><td class="border border-slate-300 px-2 py-1 text-right">${d.kasun} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Tenaga Bantu Administrasi</td><td class="border border-slate-300 px-2 py-1 text-right">${d.tba} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Anggota BPD</td><td class="border border-slate-300 px-2 py-1 text-right">${d.jmlBPD} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Anggota LPMD</td><td class="border border-slate-300 px-2 py-1 text-right">${d.jmlLPMD} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Musrenbang Desa</td><td class="border border-slate-300 px-2 py-1 text-right">${d.musrenbang} Kali/Tahun</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.6 Ketentraman & Ketertiban</h5>
+				<table class="w-full border-collapse border border-slate-300 text-[10pt] font-sans">
+					<tbody>
+						<tr><td class="border border-slate-300 px-2 py-1">Anggota Linmas</td><td class="border border-slate-300 px-2 py-1 text-right">${d.linmas} Orang</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Pos Kamling</td><td class="border border-slate-300 px-2 py-1 text-right">${d.poskamling} Unit</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Kegiatan Pembinaan</td><td class="border border-slate-300 px-2 py-1 text-right">${d.pembinaan} Kali</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Kejadian Kriminal</td><td class="border border-slate-300 px-2 py-1 text-right">${d.kriminal} Kasus</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Bencana Alam</td><td class="border border-slate-300 px-2 py-1 text-right">${d.bencana} Kali</td></tr>
+						<tr><td class="border border-slate-300 px-2 py-1">Kecelakaan Remaja</td><td class="border border-slate-300 px-2 py-1 text-right">${d.kecelakaan} Kasus</td></tr>
+					</tbody>
+				</table>
+			</div>
+
+			<div class="mb-3">
+				<h5 class="font-sans font-bold text-[10pt] mb-1">2.7 Kelembagaan Kemasyarakatan Desa</h5>
+				<p class="text-[10pt] font-sans">Jumlah lembaga aktif: <strong>${d.lembaga.length} Lembaga</strong>, meliputi: ${d.lembaga.map(l => escapeHtml(l)).join(', ') || '-'}.</p>
+			</div>
+		`;
+	}
+
+	/* Import Excel Profil */
+	async function importProfilExcel(e) {
+		const file = e.target.files[0];
+		if (!file) return;
+
+		try {
+			const data = await file.arrayBuffer();
+			const wb = XLSX.read(data, { type: 'array' });
+			const sheet = wb.Sheets[wb.SheetNames[0]];
+			const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+			// Format template: kolom A = Key, kolom B = Value
+			let updated = 0;
+			const map = {
+				'total_penduduk': 'pfTotalPenduduk',
+				'total_kk': 'pfTotalKK',
+				'luas_wilayah': 'pfLuasWilayah',
+				'jml_perdes': 'pfJmlPerdes',
+				'jml_perkades': 'pfJmlPerkades',
+				'jml_kepkades': 'pfJmlKepkades',
+				'jml_aparatur': 'pfJmlAparatur',
+				'jml_bpd': 'pfJmlBPD',
+				'jml_lpmd': 'pfJmlLPMD',
+				'laki': 'pfLaki',
+				'perempuan': 'pfPerempuan',
+				'sertifikasi': 'pfSertifikasi',
+				'tanah_kas': 'pfTanahKas',
+				'sawah': 'pfSawah',
+				'pekarangan': 'pfPekarangan',
+				'jalan': 'pfJalan',
+				'bangunan_umum': 'pfBangunanUmum',
+				'kasi': 'pfKasi',
+				'kaur': 'pfKaur',
+				'kasun': 'pfKasun',
+				'tba': 'pfTBA',
+				'musrenbang': 'pfMusrenbang',
+				'linmas': 'pfLinmas',
+				'poskamling': 'pfPoskamling',
+				'pembinaan': 'pfPembinaan',
+				'kriminal': 'pfKriminal',
+				'bencana': 'pfBencana',
+				'kecelakaan': 'pfKecelakaan'
+			};
+			const textMap = {
+				'kelompok_usia': 'pfKelompokUsia',
+				'pendidikan': 'pfPendidikan',
+				'pekerjaan': 'pfPekerjaan',
+				'lembaga': 'pfLembagaContainer'
+			};
+
+			rows.forEach(r => {
+				const key = String(r[0] || '').trim().toLowerCase();
+				const val = r[1] !== undefined ? String(r[1]).trim() : '';
+				if (!key || !val) return;
+
+				if (map[key]) {
+					document.getElementById(map[key]).value = val;
+					updated++;
+				} else if (key === 'lembaga') {
+					profilLembagaAktif = val.split(',').map(x => x.trim()).filter(x => x);
+					initProfilLembagaCheckboxes();
+					updated++;
+				} else if (['kelompok_usia','pendidikan','pekerjaan'].includes(key)) {
+					document.getElementById(textMap[key]).value = val.replace(/\\n/g, '\n');
+					updated++;
+				}
+			});
+
+			updateProfilPreview();
+			showToast(`Import sukses! ${updated} baris data terisi.`, 'success');
+		} catch (err) {
+			console.error(err);
+			showToast('Gagal import Excel: ' + err.message, 'error');
+		}
+		e.target.value = ''; // reset
+	}
+
+	/* Download Template Excel */
+	function downloadTemplateProfil() {
+		const data = [
+			['key', 'value', 'keterangan'],
+			['total_penduduk', 4869, 'Isi angka'],
+			['total_kk', 1569, 'Isi angka'],
+			['luas_wilayah', 276, 'Hektar'],
+			['jml_perdes', 7, 'Dokumen'],
+			['jml_perkades', 4, 'Dokumen'],
+			['jml_kepkades', 31, 'Dokumen'],
+			['jml_aparatur', 12, 'Orang'],
+			['jml_bpd', 5, 'Orang'],
+			['jml_lpmd', 6, 'Orang'],
+			['laki', 2478, 'Jiwa'],
+			['perempuan', 2391, 'Jiwa'],
+			['kelompok_usia', '0-4: 274\n5-9: 438\n10-14: 451', 'Format: Label: Nilai per baris (gunakan Alt+Enter untuk baris baru)'],
+			['pendidikan', 'Tidak/Belum Sekolah: 993\nTamat SD: 1004', 'Format: Label: Nilai per baris'],
+			['pekerjaan', 'Petani: 1851\nBuruh: 992', 'Format: Label: Nilai per baris'],
+			['sertifikasi', 80, 'Persen'],
+			['tanah_kas', 1.51, 'Hektar'],
+			['sawah', 200.56, 'Hektar'],
+			['pekarangan', 69.21, 'Hektar'],
+			['jalan', 3.75, 'Hektar'],
+			['bangunan_umum', 0, 'Hektar'],
+			['kasi', 3, 'Orang'],
+			['kaur', 3, 'Orang'],
+			['kasun', 3, 'Orang'],
+			['tba', 1, 'Orang'],
+			['musrenbang', 1, 'Kali/Tahun'],
+			['linmas', 30, 'Orang'],
+			['poskamling', 4, 'Unit'],
+			['pembinaan', 2, 'Kali'],
+			['kriminal', 0, 'Kasus'],
+			['bencana', 0, 'Kali'],
+			['kecelakaan', 0, 'Kasus'],
+			['lembaga', 'RT/RW, PKK, Karang Taruna, Posyandu, LPMD, BUMDesa', 'Pisahkan dengan koma'],
+		];
+		const ws = XLSX.utils.aoa_to_sheet(data);
+		ws['!cols'] = [{ wch: 20 }, { wch: 40 }, { wch: 40 }];
+		const wb = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(wb, ws, 'Template Profil Desa');
+		XLSX.writeFile(wb, 'Template_Profil_Desa_LPPD.xlsx');
+		showToast('Template Excel berhasil diunduh!', 'success');
+	}
+
+	/* Hook ke save/load Google Sheets */
+	const _origCollectAllData = collectAllData;
+	collectAllData = function() {
+		const data = _origCollectAllData();
+		data.profilDesa = collectProfilData();
+		return data;
+	};
+
+	const _origApplyLoadedData = applyLoadedData;
+	applyLoadedData = function(data) {
+		_origApplyLoadedData(data);
+		if (data.profilDesa) applyProfilData(data.profilDesa);
+		else updateProfilPreview();
+	};
+
+	/* Init saat DOM ready */
+	document.addEventListener('DOMContentLoaded', () => {
+		initProfilLembagaCheckboxes();
+		setTimeout(updateProfilPreview, 500);
+	});	
 
     </script>
 </body>
